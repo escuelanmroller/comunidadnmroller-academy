@@ -136,12 +136,11 @@ Gumercindo renombró el header de la columna K de "Talle ropa" a "Talle Casco" e
 
 **Fix completo en [`PARCHE-apps-script-casco.md`](PARCHE-apps-script-casco.md)** de esta misma carpeta — son 2 pasos manuales en la planilla (revertir el header de K a "Talle ropa" + insertar una columna nueva real para "Talle Casco") y pegar un `Código.gs` actualizado en el Apps Script (agrega `p.talle_casco` a la fila que escribe).
 
-Del lado de este repo ya está listo: `notify-alta-alquiler/index.ts` ahora manda `talle_casco` como parámetro nuevo al Apps Script (además de seguir dejándolo en "Observaciones" como respaldo mientras tanto). **Falta redeployar la función** con el mismo comando de siempre para que este cambio quede activo:
-```bash
-supabase functions deploy notify-alta-alquiler --project-ref bosutrnpmpjxylcgjmbt --no-verify-jwt
-```
+Del lado de este repo ya está listo: `notify-alta-alquiler/index.ts` manda `talle_casco` como parámetro nuevo al Apps Script (además de seguir dejándolo en "Observaciones" como respaldo). Se probó de nuevo el 13-sep con valores distintos a propósito (ropa="L", casco="S") para confirmar sin ambigüedad: la planilla quedó bien estructurada (columna "Talle ropa" correcta, columna "Casco" nueva creada), pero el valor que cayó en "Casco" fue el texto de observaciones, no "S" — señal de que el Apps Script sigue corriendo su código viejo (falta el paso "Implementar → Gestionar implementaciones → Nueva versión", que es fácil de saltear).
 
-⚠️ Quedaron **3 filas de prueba** en la planilla (`TEST Claude - ignorar`, `TEST Claude 2 - ignorar`, `TEST Claude 3 - ignorar`) y sus mensajes correspondientes en `#alta-alquiler-alumnos` — hay que borrarlos a mano, Claude solo tiene lectura sobre esa planilla.
+**Decisión (13-sep-2026): se deja así por ahora, no se sigue insistiendo con el redeploy del Apps Script.** El dato de casco no se pierde — sigue viajando en "Observaciones" como respaldo, visible para quien prepara el equipo, solo que no en su propia columna. Si en algún momento se quiere retomar, el fix ya está documentado en `PARCHE-apps-script-casco.md` y en `notify-alta-alquiler/index.ts` (que ya manda el parámetro correcto, solo falta que el script del lado de Google lo reciba).
+
+⚠️ Quedaron **4 filas de prueba** en la planilla (`TEST Claude - ignorar`, `2`, `3`, `4`) y sus mensajes correspondientes en `#alta-alquiler-alumnos` — pendiente borrarlas a mano cuando se quiera, Claude solo tiene lectura sobre esa planilla.
 
 ## Preguntas que quedan abiertas
 
