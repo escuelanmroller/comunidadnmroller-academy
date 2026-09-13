@@ -140,7 +140,7 @@ Del lado de este repo ya está listo: `notify-alta-alquiler/index.ts` manda `tal
 
 **Decisión (13-sep-2026): se deja así por ahora, no se sigue insistiendo con el redeploy del Apps Script.** El dato de casco no se pierde — sigue viajando en "Observaciones" como respaldo, visible para quien prepara el equipo, solo que no en su propia columna. Si en algún momento se quiere retomar, el fix ya está documentado en `PARCHE-apps-script-casco.md` y en `notify-alta-alquiler/index.ts` (que ya manda el parámetro correcto, solo falta que el script del lado de Google lo reciba).
 
-⚠️ Quedaron **4 filas de prueba** en la planilla (`TEST Claude - ignorar`, `2`, `3`, `4`) y sus mensajes correspondientes en `#alta-alquiler-alumnos` — pendiente borrarlas a mano cuando se quiera, Claude solo tiene lectura sobre esa planilla.
+⚠️ Quedaron **5 filas de prueba** en la planilla (`TEST Claude - ignorar` a `5`, la última con "Lucía Fernández"/"TEST Claude 5" en las notas) y sus mensajes correspondientes en `#alta-alquiler-alumnos` — pendiente borrarlas a mano cuando se quiera, Claude solo tiene lectura sobre esa planilla.
 
 ## Preguntas que quedan abiertas
 
