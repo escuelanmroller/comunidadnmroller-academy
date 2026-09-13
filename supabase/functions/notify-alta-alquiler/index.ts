@@ -56,10 +56,13 @@ Deno.serve(async (req) => {
     const horarioTexto = `${turnoDia} ${turnoHora}hs (turno fijo)`;
 
     // --- Excel (planilla "alquiler nm app NUEVO", pestaña "Registros") ---
-    // El Apps Script no tiene columnas para casco ni acompañante — se suman
-    // a "observaciones" para no perder el dato, en vez de tocar su schema.
+    // El Apps Script hoy solo tiene 12 columnas fijas (sin una propia para
+    // casco ni acompañante) — mandamos `talle_casco` como parámetro nuevo
+    // (para cuando se actualice el script y la planilla tenga su columna
+    // real) Y lo dejamos también en "observaciones" como respaldo mientras
+    // tanto, para no perder el dato en el medio. Sacar el respaldo de acá
+    // una vez confirmado que la columna nueva funciona (ver CONTEXTO.md).
     const observacionesExtra = [
-      `Talle casco: ${talleCasco}`,
       acompanante ? `Acompañante 2x1: ${acompanante.nombre} ${acompanante.apellido}, DNI ${acompanante.dni}, ${acompanante.email}` : null,
       notas?.trim() || null,
     ].filter(Boolean).join(" · ");
@@ -77,7 +80,8 @@ Deno.serve(async (req) => {
         horario: horarioTexto,
         talle_calzado: talleCalzado,
         talle_ropa: talleRopa,
-        observaciones: observacionesExtra,
+        talle_casco: talleCasco, // requiere el parche del Apps Script — ver CONTEXTO.md
+        observaciones: `Talle casco: ${talleCasco}${observacionesExtra ? " · " + observacionesExtra : ""}`,
       });
       const res = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`, { method: "GET" });
       excelOk = res.ok;

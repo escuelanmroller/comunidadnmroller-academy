@@ -130,6 +130,19 @@ Gumercindo deployó la función y cargó el secret `SLACK_WEBHOOK_ALTA_ALQUILER`
 
 Las dos vías (Slack `#alta-alquiler-alumnos` y la planilla `alquiler nm app NUEVO`) confirmadas funcionando. Recién con esto verificado se puede subir un build a Hostinger con este cambio (regla #17 del `CLAUDE.md`, ya cumplida).
 
+### ⚠️ Hallazgo (13-sep-2026): la columna de "Talle Casco" en la planilla no es lo que parece
+
+Gumercindo renombró el header de la columna K de "Talle ropa" a "Talle Casco" en la planilla real, pensando que así el talle de casco iba a caer ahí. **No es así** — el Apps Script no cambió, sigue escribiendo la talla de ropa en esa posición (confirmado mirando filas viejas: tienen valores S/M/L reales de ropa). El talle de casco hoy solo viaja embebido en "Observaciones".
+
+**Fix completo en [`PARCHE-apps-script-casco.md`](PARCHE-apps-script-casco.md)** de esta misma carpeta — son 2 pasos manuales en la planilla (revertir el header de K a "Talle ropa" + insertar una columna nueva real para "Talle Casco") y pegar un `Código.gs` actualizado en el Apps Script (agrega `p.talle_casco` a la fila que escribe).
+
+Del lado de este repo ya está listo: `notify-alta-alquiler/index.ts` ahora manda `talle_casco` como parámetro nuevo al Apps Script (además de seguir dejándolo en "Observaciones" como respaldo mientras tanto). **Falta redeployar la función** con el mismo comando de siempre para que este cambio quede activo:
+```bash
+supabase functions deploy notify-alta-alquiler --project-ref bosutrnpmpjxylcgjmbt --no-verify-jwt
+```
+
+⚠️ Quedaron **3 filas de prueba** en la planilla (`TEST Claude - ignorar`, `TEST Claude 2 - ignorar`, `TEST Claude 3 - ignorar`) y sus mensajes correspondientes en `#alta-alquiler-alumnos` — hay que borrarlos a mano, Claude solo tiene lectura sobre esa planilla.
+
 ## Preguntas que quedan abiertas
 
 1. **A quién aplica exactamente:** hoy se muestra para los 3 packs de Clases + Alquiler. Falta confirmar esto contra el pricing real de `PricingAlquilerSection.tsx`, que no modela exactamente estos 3 packs de la misma forma.
