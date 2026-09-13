@@ -150,6 +150,20 @@ A pedido de Gumercindo, viendo las capturas de la pantalla real:
 - El bloque "¿Cómo seguimos?" (los 3 pasos genéricos: registrate en la app / cargá tu comprobante / revisá tu correo) se oculta, pero **solo después de subir el comprobante** (`isAlquiler && done`) — antes de eso sigue apareciendo igual que siempre. Primer intento lo sacaba también antes de subir el comprobante, corregido tras revisar con Gumercindo contra la pantalla real.
 - El bloque "¡Comprobante recibido!" (título + ícono + "Último paso" + botones "Abrir mi correo"/"Escribinos por WhatsApp" + párrafo "por única vez... Turnos Web") se **recortó a un solo párrafo** ("Revisá tu correo en \<email\>...") — solo para Clases + Alquiler. El paso siguiente real es el formulario de abajo, no tiene sentido repetir botones/aviso ahí. NM y Masterclass mantienen el bloque completo sin cambios.
 
+### ✅ Acompañante 2x1 ampliado (13-sep-2026)
+
+A pedido de Gumercindo:
+- Texto aclarando que comprador y acompañante **van al mismo turno** (día/hora/profe/sede) — no son turnos separados.
+- Checkbox **"Todavía no tengo los datos de mi acompañante — te los mando después por WhatsApp"**: si se marca, no exige completar sus campos (nombre/apellido/DNI/email/equipo). El backend registra este caso como `pendiente: true` — igual llega a Slack y queda para seguimiento, marcado como pendiente.
+- Se le pide **también el equipo** al acompañante (talle calzado + "ya tiene sus rollers", talla ropa, talle casco) — antes solo se pedía identidad, pero también hay que prepararle equipo a esa persona.
+- Texto chico con los links de descarga de Turnos Web (Google Play / App Store) para el acompañante, + botón **"¿Necesitás ayuda?"** a WhatsApp.
+- Cuando los datos del acompañante vienen completos (no pendiente), `notify-alta-alquiler` manda **una fila propia en el Excel** para el acompañante (mismo sede/turno, columna Pack con la etiqueta `· 2X1 — ACOMPAÑANTE`), además de la fila del comprador. El pack del comprador también queda etiquetado `· 2X1` y el título del mensaje de Slack suma `👥 2X1` — para identificar de un vistazo que es una compra 2x1 al mirar la planilla o Slack.
+- ⚠️ **Pendiente**: como el backend cambió (nueva forma del objeto `acompanante`, fila extra en Excel), hace falta **redeployar `notify-alta-alquiler`** de nuevo:
+  ```bash
+  supabase functions deploy notify-alta-alquiler --project-ref bosutrnpmpjxylcgjmbt --no-verify-jwt
+  ```
+- 💡 **Idea para más adelante (todavía no construida)**: armar un mensaje/enlace personalizado para que el comprador le comparta a su acompañante por WhatsApp, invitándolo a bajar la app Turnos Web — Gumercindo pidió dejarlo para después de resolver esto.
+
 ## Preguntas que quedan abiertas
 
 1. **A quién aplica exactamente:** hoy se muestra para los 3 packs de Clases + Alquiler. Falta confirmar esto contra el pricing real de `PricingAlquilerSection.tsx`, que no modela exactamente estos 3 packs de la misma forma.
