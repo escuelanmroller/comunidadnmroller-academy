@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import FlyFreePanel from "@/components/FlyFreePanel";
 import { sedes, claseTieneAlquiler, ordenDias, NIVEL_UNIFICADO, type ClaseSede } from "@/data/sedes";
 
 // Únicas sedes/turnos que se ofrecen acá: los que hoy tienen alquiler real en
@@ -198,15 +199,29 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
   }, [nombre, dni, planLabel, sedeId, turnoElegido, fechas, sinRollers, talleCalzado, talleRopa, talleCasco, es2x1, compNombre, compApellido, compDni, compEmail, notas]);
 
   if (enviado) {
+    const sedeElegida = SEDES_ALQUILER.find((s) => s.id === sedeId)?.nombre;
     return (
       <div className="border-2 border-primary bg-background p-6 md:p-8 text-center">
         <ShieldCheck className="w-12 h-12 text-primary mx-auto mb-4" strokeWidth={2} />
         <h3 className="font-display italic uppercase font-black text-lg md:text-xl text-primary mb-3">
           ¡Ya tenemos tus datos!
         </h3>
-        <p className="text-sm text-foreground/75 leading-relaxed max-w-md mx-auto mb-6">
-          Tu equipo va a estar preparado en <strong className="text-foreground">{SEDES_ALQUILER.find((s) => s.id === sedeId)?.nombre}</strong> para tu turno de {turnoElegido?.dia} {turnoElegido?.hora}hs.
+        <p className="text-sm text-foreground/75 leading-relaxed max-w-md mx-auto mb-2">
+          Tu equipo va a estar preparado en <strong className="text-foreground">{sedeElegida}</strong> para tu turno de {turnoElegido?.dia} {turnoElegido?.hora}hs.
         </p>
+        <div className="border border-[#F5B800]/40 bg-[#F5B800]/5 max-w-md mx-auto p-4 mb-6 text-left">
+          <p className="text-xs uppercase tracking-[0.1em] font-black text-[#F5B800] mb-1.5">
+            ⚑ Anotado como fijo
+          </p>
+          <p className="text-sm text-foreground/85 leading-relaxed">
+            Este va a ser siempre tu horario para {esPack4 ? "tus 4 clases" : "tu clase"} — <strong>{sedeElegida}, {turnoElegido?.dia} a las {turnoElegido?.hora}hs</strong>, no rota semana a semana.
+          </p>
+          {esPack4 && fechas.length > 0 && (
+            <p className="text-xs text-foreground/60 mt-2">
+              {fechas.map((f) => formatFecha(f)).join(" · ")}
+            </p>
+          )}
+        </div>
         <a
           href={mensajeWhatsapp}
           target="_blank"
@@ -215,6 +230,22 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
         >
           ¿Tenés dudas? Escribinos por WhatsApp
         </a>
+
+        <div className="border-t border-foreground/10 pt-6 mt-8 text-left">
+          <div className="flex items-start gap-2 mb-3">
+            <ShieldCheck className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <div>
+              <h4 className="font-bold uppercase text-sm tracking-wide text-foreground mb-1">
+                Preparate para tu primera clase
+              </h4>
+              <p className="text-sm text-foreground/70 leading-relaxed">
+                Ya tenés el equipo incluido en tu pack — si más adelante querés tener tus propios
+                rollers, protecciones o casco, esta es la marca aliada de NM Roller 👇
+              </p>
+            </div>
+          </div>
+          <FlyFreePanel />
+        </div>
       </div>
     );
   }
