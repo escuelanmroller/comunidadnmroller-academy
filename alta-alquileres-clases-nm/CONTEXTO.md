@@ -140,7 +140,13 @@ Del lado de este repo ya está listo: `notify-alta-alquiler/index.ts` manda `tal
 
 **Decisión (13-sep-2026): se deja así por ahora, no se sigue insistiendo con el redeploy del Apps Script.** El dato de casco no se pierde — sigue viajando en "Observaciones" como respaldo, visible para quien prepara el equipo, solo que no en su propia columna. Si en algún momento se quiere retomar, el fix ya está documentado en `PARCHE-apps-script-casco.md` y en `notify-alta-alquiler/index.ts` (que ya manda el parámetro correcto, solo falta que el script del lado de Google lo reciba).
 
-⚠️ Quedaron **5 filas de prueba** en la planilla (`TEST Claude - ignorar` a `5`, la última con "Lucía Fernández"/"TEST Claude 5" en las notas) y sus mensajes correspondientes en `#alta-alquiler-alumnos` — pendiente borrarlas a mano cuando se quiera, Claude solo tiene lectura sobre esa planilla.
+⚠️ Quedaron **6 filas de prueba** en la planilla (`TEST Claude - ignorar` a `6`) y sus mensajes correspondientes en `#alta-alquiler-alumnos` — pendiente borrarlas a mano cuando se quiera, Claude solo tiene lectura sobre esa planilla.
+
+### ✅ Ajuste de UX (13-sep-2026): turno fijo reforzado + Fly Free reubicado
+
+A pedido de Gumercindo, viendo las capturas de la pantalla real:
+- La pantalla final ("¡Ya tenemos tus datos!") ahora tiene un bloque **"⚑ Anotado como fijo"** que reitera sede+día+hora (y las 4 fechas concretas si es Pack 4 Clases) como el turno permanente — no solo dice "tu equipo va a estar preparado", refuerza que ese horario no rota.
+- El bloque "Preparate para tu primera clase" + panel de Fly Free se **movió** de la pantalla de "Comprobante recibido" a esta pantalla final — solo para Clases + Alquiler (`isAlquiler`). Para NM/Masterclass sigue igual donde estaba (no tienen este paso nuevo, es el único lugar donde ven ese aviso). Se ajustó también el copy del bloque movido: ya no invita a "alquilar el equipo" (redundante, ya lo compraron incluido), pasa a invitar a comprar equipo propio a futuro.
 
 ## Preguntas que quedan abiertas
 
