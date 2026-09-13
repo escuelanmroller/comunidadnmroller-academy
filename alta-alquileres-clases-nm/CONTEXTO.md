@@ -164,7 +164,32 @@ A pedido de Gumercindo:
   ```
 - 💡 **Idea para más adelante (todavía no construida)**: armar un mensaje/enlace personalizado para que el comprador le comparta a su acompañante por WhatsApp, invitándolo a bajar la app Turnos Web — Gumercindo pidió dejarlo para después de resolver esto.
 
+## 💡 Idea futura (13-sep-2026): tagging de leads + email personalizado por plan — todavía sin construir
+
+Gumercindo planteó que, según la ruta que tomó el usuario (Clase Única / Clase 2x1 / Pack 4 Clases), convendría **etiquetar el lead según su compra** para después mandarle un **email personalizado** con todo lo que sí o sí tiene que saber de su plan puntual. Es una idea para una futura estrategia de email — no está construida, ni decidido cómo (¿tag en GetResponse? ¿campo nuevo en `comprobantes_pago`/la tabla de alta? ¿automatizado o manual?).
+
+Contenido que debería llevar cada email, según lo que dictó:
+
+**Común a los 3 planes:**
+- La reserva/turno solo es válido si quedó definido con **24hs de anticipación** a la clase.
+- Tiene que sumarse al **grupo correspondiente** de la clase/sede a la que va a asistir.
+- Si no se presenta a la clase, **se toma como vista/consumida** — para evitar eso, tiene que avisar por WhatsApp con 24hs de anticipación si no puede ir.
+  - ⚠️ **Nota de Claude**: esto dice "24hs" para avisar una ausencia — pero la regla ya construida en el formulario (`AltaAlquilerForm.tsx`) dice **48hs** para ese mismo aviso (ver regla de negocio #8, más arriba en este documento). Quedó sin resolver cuál de las dos es la correcta; conviene unificarlo antes de escribir el email real.
+
+**Específico Clase 2x1:**
+- Ambos tienen que ir juntos: misma clase, mismo horario, misma sede.
+- Si no pueden ir juntos, pueden pagar **$10.000 por persona** para elegir otra sede con alquiler disponible (para cuando uno de los dos no puede ir a ese horario).
+
+**Específico Pack 4 Clases:**
+- Las clases son fijas y permanentes para el día elegido — no se puede cambiar horario, profesor ni sede.
+- Se puede enriquecer con el tema protecciones / comprar equipo propio a futuro.
+
+**Ideas de seguimiento (a evaluar, no definidas):**
+- Pack 4 Clases: emails recordatorios a mitad de las 4 clases.
+- Clase Única / 2x1: ofrecer clases adicionales o compra de equipo propio.
+
 ## Preguntas que quedan abiertas
 
 1. **A quién aplica exactamente:** hoy se muestra para los 3 packs de Clases + Alquiler. Falta confirmar esto contra el pricing real de `PricingAlquilerSection.tsx`, que no modela exactamente estos 3 packs de la misma forma.
 2. **Corte / migración del Tiiny:** el formulario de Tiiny sigue activo y recibiendo alumnos reales todos los días. Gumercindo confirmó (12-sep-2026) que esto **no lo reemplaza todavía** — conviven. Falta definir hasta cuándo y en qué condición pasa a reemplazarlo del todo.
+3. **24hs vs. 48hs para avisar ausencia** — ver nota arriba, hay una contradicción entre lo que dice el formulario construido y lo que se pidió para el email.
