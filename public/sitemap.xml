@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Home -->
+  <url>
+    <loc>https://comunidadnmroller.com/</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Clases & Planes -->
+  <url>
+    <loc>https://comunidadnmroller.com/clases-de-rollers-mas-alquiler</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://comunidadnmroller.com/clase-gratis</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://comunidadnmroller.com/masterclass-de-patinaje</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Alianzas -->
+  <url>
+    <loc>https://comunidadnmroller.com/exclusivo-de-socios-sportclub</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Recursos & Help -->
+  <url>
+    <loc>https://comunidadnmroller.com/preguntas-frecuentes</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://comunidadnmroller.com/ruta-de-aprendizaje</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://comunidadnmroller.com/tutoriales-de-patinaje</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://comunidadnmroller.com/newsletter-desde-cero</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Legal -->
+  <url>
+    <loc>https://comunidadnmroller.com/terminos-y-condiciones</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://comunidadnmroller.com/politicas-de-privacidad</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Confirmaciones (bajo priority, no indexar) -->
+  <url>
+    <loc>https://comunidadnmroller.com/registro-confirmado-newsletter</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <url>
+    <loc>https://comunidadnmroller.com/clase-gratis-confirmada</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <url>
+    <loc>https://comunidadnmroller.com/exclusivo-de-socios-sportclub-confirmado</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <url>
+    <loc>https://comunidadnmroller.com/pago-confirmado</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.3</priority>
+  </url>
+</urlset>

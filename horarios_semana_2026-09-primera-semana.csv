@@ -1,0 +1,117 @@
+dia_semana,fecha,hora,sede,nivel,profe,cupos_disponibles,estado,tipo_clase
+Lunes,2026-09-07,19:00,P. Rivadavia,Primeros Pasos,Rondina Guillermo,3,disponible,grupal
+Lunes,2026-09-07,19:00,P. Rivadavia,Principiante,Rondina Guillermo,1,disponible,grupal
+Lunes,2026-09-07,19:00,P. Rivadavia,SPORT C,Rondina Guillermo,3,disponible,grupal
+Lunes,2026-09-07,20:00,P. Rivadavia,Frenadas,Rondina Guillermo,4,disponible,grupal
+Martes,2026-09-08,09:00,Rosedal,Principiante,,2,disponible,grupal
+Martes,2026-09-08,09:00,Rosedal,Primeros Pasos,,5,disponible,grupal
+Martes,2026-09-08,09:00,Rosedal,SPORT CLUB,,3,disponible,grupal
+Martes,2026-09-08,18:00,Madero,Primeros Pasos,Vladi Valencia,4,disponible,grupal
+Martes,2026-09-08,18:00,Rosedal,KIDS,Martu Demarchi,10,disponible,grupal
+Martes,2026-09-08,18:00,Madero,Principiante,Vladi Valencia,6,disponible,grupal
+Martes,2026-09-08,18:00,Madero,SPORT CLUB,Vladi Valencia,0,sin_cupo,grupal
+Martes,2026-09-08,19:00,P. Rivadavia,Primeros Pasos,Rondina Guillermo,2,disponible,grupal
+Martes,2026-09-08,19:00,Madero,Slalom,Vladi Valencia,10,disponible,grupal
+Martes,2026-09-08,19:00,Rosedal,Principiante,,4,disponible,grupal
+Martes,2026-09-08,19:00,Devoto,Principiante,Daniel Rodriguez,5,disponible,grupal
+Martes,2026-09-08,19:00,Devoto,Primeros Pasos,Daniel Rodriguez,5,disponible,grupal
+Martes,2026-09-08,19:00,Rosedal,Primeros Pasos,,5,disponible,grupal
+Martes,2026-09-08,19:00,Rosedal,Intermedio,,3,disponible,grupal
+Martes,2026-09-08,19:00,P. Rivadavia,Principiante,Abreu Daniel,4,disponible,grupal
+Martes,2026-09-08,19:00,Madero,Principiante,Vladi Valencia,9,disponible,grupal
+Martes,2026-09-08,19:00,P. Rivadavia,intermedio,Abreu Daniel,3,disponible,grupal
+Martes,2026-09-08,19:00,Madero,SPORT CLUB,,2,disponible,grupal
+Martes,2026-09-08,19:00,P. Rivadavia,SPORT C,Abreu Daniel,5,disponible,grupal
+Martes,2026-09-08,19:00,Rosedal,SPORT CLUB,,0,sin_cupo,grupal
+Martes,2026-09-08,19:00,Devoto,SPORT CLUB,Daniel Rodriguez,5,disponible,grupal
+Martes,2026-09-08,20:00,P. Rivadavia,Urbano,Abreu Daniel,9,disponible,grupal
+Martes,2026-09-08,20:00,P. Rivadavia,Frenadas,Rondina Guillermo,4,disponible,grupal
+Martes,2026-09-08,20:00,Rosedal,Slalom,,8,disponible,grupal
+Miércoles,2026-09-09,18:00,Villa Real,Principiante,Vladi Valencia,9,disponible,grupal
+Miércoles,2026-09-09,18:00,Villa Real,Primeros Pasos,Vladi Valencia,10,disponible,grupal
+Miércoles,2026-09-09,18:00,Villa Real,SPORT CLUB,Vladi Valencia,5,disponible,grupal
+Miércoles,2026-09-09,19:00,Rosedal,Principiante,Rondina Guillermo,5,disponible,grupal
+Miércoles,2026-09-09,19:00,Rosedal,Primeros Pasos,Guille Rondina,5,disponible,grupal
+Miércoles,2026-09-09,19:00,Rosedal,SPORT CLUB,Rondina Guillermo,4,disponible,grupal
+Miércoles,2026-09-09,19:00,Vic. Lopez,Primeros Pasos,Nico Sappia,3,disponible,grupal
+Miércoles,2026-09-09,19:00,Belgrano,Principiante,Fruti Muñoz,3,disponible,grupal
+Miércoles,2026-09-09,19:00,Vic. Lopez,SPORT C,Nico Sappia,5,disponible,grupal
+Miércoles,2026-09-09,19:00,Villa Real,Principiante,Vladi Valencia,9,disponible,grupal
+Miércoles,2026-09-09,19:00,Vic. Lopez,Principiante,Nico Sappia,5,disponible,grupal
+Miércoles,2026-09-09,19:00,Belgrano,Primeros Pasos,Fruti Muñoz,5,disponible,grupal
+Miércoles,2026-09-09,19:00,Villa Real,SPORT CLUB,Vladi Valencia,2,disponible,grupal
+Miércoles,2026-09-09,19:00,Belgrano,SPORT CLUB,Fruti Muñoz,3,disponible,grupal
+Miércoles,2026-09-09,19:00,Colegiales,Primeros Pasos,Charly Ferreira,5,disponible,grupal
+Miércoles,2026-09-09,19:00,Colegiales,Principiantes,Charly Ferreira,5,disponible,grupal
+Miércoles,2026-09-09,19:00,Colegiales,SPORT CLUB,Charly Ferreira,5,disponible,grupal
+Miércoles,2026-09-09,20:00,Converse Park,INICIACION RAMPAS,Fruti Muñoz,6,disponible,grupal
+Miércoles,2026-09-09,20:00,Colegiales,Slalom Inicial,Charly Ferreira,10,disponible,grupal
+Jueves,2026-09-10,18:00,Rosedal,KIDS,Martu Demarchi,10,disponible,grupal
+Jueves,2026-09-10,19:00,P. Rivadavia,Primeros Pasos,Andres Oubiña,5,disponible,grupal
+Jueves,2026-09-10,19:00,Rosedal,Principiante,Rondina Guillermo,10,disponible,grupal
+Jueves,2026-09-10,19:00,Rosedal,Primeros Pasos,Rondina Guillermo,10,disponible,grupal
+Jueves,2026-09-10,19:00,Rosedal,Intermedio,Fruti Muñoz,10,disponible,grupal
+Jueves,2026-09-10,19:00,P. Rivadavia,Principiante,Andres Oubiña,3,disponible,grupal
+Jueves,2026-09-10,19:00,Rosedal,Slalom,Nico Sappia,8,disponible,grupal
+Jueves,2026-09-10,19:00,P. Rivadavia,SPORT C,Andres Oubiña,6,disponible,grupal
+Jueves,2026-09-10,19:00,Rosedal,SPORT CLUB,,7,disponible,grupal
+Jueves,2026-09-10,19:00,Villa Luro,Primeros Pasos,Abreu Daniel,5,disponible,grupal
+Jueves,2026-09-10,19:00,Villa Luro,Principiante,Abreu Daniel,10,disponible,grupal
+Jueves,2026-09-10,19:00,Villa Luro,SPORT CLUB,Abreu Daniel,5,disponible,grupal
+Jueves,2026-09-10,20:00,P. Rivadavia,Frenadas,Andres Oubiña,8,disponible,grupal
+Jueves,2026-09-10,20:00,Rosedal,Rampas,,0,sin_cupo,grupal
+Jueves,2026-09-10,20:00,Villa Luro,Skate Park,Abreu Daniel,10,disponible,grupal
+Viernes,2026-09-11,18:00,Belgrano,Slalom,,4,disponible,grupal
+Viernes,2026-09-11,19:00,Belgrano,Principiante,Fruti Muñoz,4,disponible,grupal
+Viernes,2026-09-11,19:00,F. Medicina,Principiante,Charly Ferreira,5,disponible,grupal
+Viernes,2026-09-11,19:00,Devoto,Principiante,Daniel Rodriguez,4,disponible,grupal
+Viernes,2026-09-11,19:00,Devoto,Primeros Pasos,Daniel Rodriguez,4,disponible,grupal
+Viernes,2026-09-11,19:00,F. Medicina,Primeros Pasos,Charly Ferreira,4,disponible,grupal
+Viernes,2026-09-11,19:00,Belgrano,Primeros Pasos,,5,disponible,grupal
+Viernes,2026-09-11,19:00,Belgrano,SPORT CLUB,Fruti Muñoz,5,disponible,grupal
+Viernes,2026-09-11,19:00,F. Medicina,SPORT C,Charly Ferreira,4,disponible,grupal
+Viernes,2026-09-11,19:00,Devoto,SPORT CLUB,Daniel Rodriguez,8,disponible,grupal
+Viernes,2026-09-11,19:00,Colegiales,Primeros Pasos,Rondina Guillermo,5,disponible,grupal
+Viernes,2026-09-11,19:00,Colegiales,Principiantes,Rondina Guillermo,5,disponible,grupal
+Viernes,2026-09-11,19:00,Colegiales,SPORT CLUB,Rondina Guillermo,5,disponible,grupal
+Viernes,2026-09-11,20:00,Converse Park,INICIACION RAMPAS,Fruti Muñoz,5,disponible,grupal
+Viernes,2026-09-11,20:00,Colegiales,Frenadas,Rondina Guillermo,9,disponible,grupal
+Sábado,2026-09-12,08:00,Individual,Vicente Lopez,Vladi Valencia,1,disponible,individual
+Sábado,2026-09-12,09:00,Vic. Lopez,Primeros Pasos,Vladi Valencia,5,disponible,grupal
+Sábado,2026-09-12,09:00,Vic. Lopez,SPORT C,,2,disponible,grupal
+Sábado,2026-09-12,09:00,Vic. Lopez,Slalom,Vladi Valencia,3,disponible,grupal
+Sábado,2026-09-12,09:00,Vic. Lopez,Principiante,Vladi Valencia,5,disponible,grupal
+Sábado,2026-09-12,09:00,Plaza La Pampa,SPORT C,Daniel Rodriguez,8,disponible,grupal
+Sábado,2026-09-12,09:00,Plaza La Pampa,Primeros Pasos,Daniel Rodriguez,4,disponible,grupal
+Sábado,2026-09-12,09:00,Plaza La Pampa,Principiantes,Daniel Rodriguez,4,disponible,grupal
+Sábado,2026-09-12,10:00,Rosedal,Principiante,Rondina Guillermo,8,disponible,grupal
+Sábado,2026-09-12,10:00,Madero,Primeros Pasos,Andres Oubiña,6,disponible,grupal
+Sábado,2026-09-12,10:00,Rosedal,Primeros Pasos,Rondina Guillermo,6,disponible,grupal
+Sábado,2026-09-12,10:00,Madero,Principiante,Andres Oubiña,4,disponible,grupal
+Sábado,2026-09-12,10:00,Madero,SPORT CLUB,Andres Oubiña,5,disponible,grupal
+Sábado,2026-09-12,10:00,Rosedal,SPORT CLUB,Martu Demarchi,4,disponible,grupal
+Sábado,2026-09-12,10:30,Villa Real,Principiante,Vladi Valencia,5,disponible,grupal
+Sábado,2026-09-12,10:30,Villa Real,Primeros Pasos,Charly Ferreira,5,disponible,grupal
+Sábado,2026-09-12,10:30,Villa Real,SPORT CLUB,,1,disponible,grupal
+Sábado,2026-09-12,11:00,Madero,Urbano,Andres Oubiña,10,disponible,grupal
+Sábado,2026-09-12,11:30,Villa Real,Slalom inicial,Charly Ferreira,6,disponible,grupal
+Sábado,2026-09-12,11:30,Villa Real,Urbano,Vladi Valencia,5,disponible,grupal
+Sábado,2026-09-12,17:00,Rosedal,Slalom,Nico Sappia,8,disponible,grupal
+Sábado,2026-09-12,18:00,Rosedal,Principiante,Nico Sappia,6,disponible,grupal
+Sábado,2026-09-12,18:00,Rosedal,Primeros Pasos,Rondina Guillermo,5,disponible,grupal
+Sábado,2026-09-12,18:00,Rosedal,SPORT CLUB,Rondina Guillermo,4,disponible,grupal
+Sábado,2026-09-12,19:00,Rosedal,Frenadas,Rondina Guillermo,9,disponible,grupal
+Domingo,2026-09-13,09:00,Plaza La Pampa,SPORT C,Daniel Rodriguez,5,disponible,grupal
+Domingo,2026-09-13,09:00,Plaza La Pampa,Primeros Pasos,Daniel Rodriguez,5,disponible,grupal
+Domingo,2026-09-13,09:00,Plaza La Pampa,Principiantes,Daniel Rodriguez,4,disponible,grupal
+Domingo,2026-09-13,09:00,P. Rivadavia,Primeros Pasos,Andres Oubiña,10,disponible,grupal
+Domingo,2026-09-13,09:00,P. Rivadavia,Urbano,Andres Oubiña,10,disponible,grupal
+Domingo,2026-09-13,09:00,P. Rivadavia,SPORT C,Andres Oubiña,4,disponible,grupal
+Domingo,2026-09-13,10:00,F. Medicina,Principiante,Rondina Guillermo,5,disponible,grupal
+Domingo,2026-09-13,10:00,F. Medicina,Primeros Pasos,Rondina Guillermo,4,disponible,grupal
+Domingo,2026-09-13,10:00,F. Medicina,SPORT C,,5,disponible,grupal
+Domingo,2026-09-13,10:00,Rosedal,Principiante,Fruti Muñoz,2,disponible,grupal
+Domingo,2026-09-13,10:00,Rosedal,Primeros Pasos,Fruti Muñoz,5,disponible,grupal
+Domingo,2026-09-13,10:00,Rosedal,SPORT CLUB,Fruti Muñoz,3,disponible,grupal
+Domingo,2026-09-13,10:00,P. Rivadavia,Principiante,Andres Oubiña,10,disponible,grupal
+Domingo,2026-09-13,10:00,P. Rivadavia,SPORT C,,5,disponible,grupal

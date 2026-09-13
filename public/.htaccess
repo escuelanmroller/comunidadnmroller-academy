@@ -1,0 +1,31 @@
+# SPA routing para React Router (Hostinger / Apache)
+# Cualquier ruta que NO sea un archivo o carpeta real se sirve con index.html,
+# para que React Router maneje la navegación interna.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # No tocar archivos reales (js, css, png, etc.)
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  # No tocar carpetas reales (ej: /lp del subdominio)
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Todo lo demás -> index.html (lo maneja React Router)
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# Cache de archivos
+<IfModule mod_expires.c>
+  ExpiresActive On
+  # El HTML expira al instante: cada deploy se ve enseguida
+  # (evita pantalla en blanco por index.html viejo cacheado)
+  ExpiresByType text/html "access plus 0 seconds"
+  # Assets con hash: cache largo (no cambian nunca)
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+</IfModule>

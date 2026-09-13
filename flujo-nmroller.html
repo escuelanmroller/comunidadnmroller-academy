@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flujo del Sitio — Comunidad NM Roller</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #fff; color: #111; padding: 32px; font-size: 12px; }
+
+  .header { margin-bottom: 32px; border-bottom: 3px solid #D01C1F; padding-bottom: 16px; }
+  .header h1 { font-size: 22px; font-weight: 800; }
+  .header p { font-size: 11px; color: #888; margin-top: 4px; }
+
+  .diagram { display: flex; flex-direction: column; gap: 32px; }
+  .flow { page-break-inside: avoid; }
+
+  .flow-title { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 10px; padding: 4px 12px; border-radius: 4px; display: inline-block; }
+  .ft-red  { background: #D01C1F; color: #fff; }
+  .ft-gold { background: #F5B800; color: #111; }
+  .ft-dark { background: #1a1a1a; color: #fff; }
+  .ft-gray { background: #e5e7eb; color: #555; }
+  .ft-blue { background: #2563eb; color: #fff; }
+  .ft-teal { background: #0d9488; color: #fff; }
+
+  /* Layout */
+  .row { display: flex; align-items: flex-start; gap: 0; flex-wrap: nowrap; }
+  .col { display: flex; flex-direction: column; gap: 6px; }
+
+  /* Nodos */
+  .node {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 8px 10px; border-radius: 6px; text-align: center;
+    min-width: 108px; max-width: 140px; line-height: 1.3;
+  }
+  .node-name { font-weight: 700; font-size: 11px; }
+  .node-sub  { font-size: 9px; margin-top: 2px; opacity: 0.78; }
+
+  .n-visitor     { background: #f3f4f6; border: 1.5px solid #d1d5db; color: #374151; }
+  .n-page        { background: #fff;    border: 1.5px solid #D01C1F; color: #111; }
+  .n-form        { background: #dbeafe; border: 1.5px solid #3b82f6; color: #1e3a8a; }
+  .n-confirm     { background: #dcfce7; border: 1.5px solid #22c55e; color: #14532d; }
+  .n-slack       { background: #4a154b; border: 1.5px solid #4a154b; color: #fff; }
+  .n-whatsapp    { background: #25D366; border: 1.5px solid #25D366; color: #fff; }
+  .n-mp          { background: #009ee3; border: 1.5px solid #009ee3; color: #fff; }
+  .n-getresponse { background: #f0fdf4; border: 1.5px solid #86efac; color: #166534; }
+  .n-wait        { background: #fce7f3; border: 1.5px solid #ec4899; color: #831843; }
+  .n-calendly    { background: #006bff; border: 1.5px solid #006bff; color: #fff; }
+  .n-popup       { background: #f5f3ff; border: 1.5px solid #7c3aed; color: #3b0764; }
+  .n-manual      { background: #fff7ed; border: 1.5px solid #f97316; color: #7c2d12; }
+
+  .arrow { font-size: 16px; color: #bbb; padding: 0 4px; flex-shrink: 0; align-self: center; }
+
+  /* Caminos bifurcados */
+  .paths { display: flex; flex-direction: column; gap: 10px; border-left: 2px dashed #e5e7eb; padding-left: 10px; }
+  .path-label { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #aaa; margin-bottom: 3px; }
+  .path-row { display: flex; align-items: center; gap: 0; }
+
+  /* Notas */
+  .note { margin-top: 8px; font-size: 10px; color: #666; padding: 6px 10px; border-left: 3px solid #e5e7eb; background: #fafafa; border-radius: 0 4px 4px 0; line-height: 1.5; }
+  .note strong { color: #333; }
+  .note .alert { color: #D01C1F; font-weight: 700; }
+
+  /* Tabla */
+  .url-table { width: 100%; border-collapse: collapse; margin-top: 40px; }
+  .url-table th { text-align: left; padding: 7px 10px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #888; border-bottom: 2px solid #e5e7eb; background: #fafafa; }
+  .url-table td { padding: 8px 10px; border-bottom: 1px solid #f0f0f0; vertical-align: top; font-size: 11px; }
+  .url { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 10px; color: #D01C1F; font-weight: 600; }
+  .badge { display: inline-flex; padding: 2px 7px; border-radius: 20px; font-size: 9px; font-weight: 700; text-transform: uppercase; }
+  .b-form    { background: #dbeafe; color: #1d4ed8; }
+  .b-confirm { background: #dcfce7; color: #15803d; }
+  .b-info    { background: #f3f4f6; color: #555; }
+  .b-wait    { background: #fce7f3; color: #9d174d; }
+
+  /* Leyenda */
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; padding-top: 16px; border-top: 1px solid #e5e7eb; }
+  .leg { display: flex; align-items: center; gap: 6px; font-size: 10px; color: #555; }
+  .leg-box { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
+
+  @media print { body { padding: 20px; } .flow { page-break-inside: avoid; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Mapa de flujos — Comunidad NM Roller</h1>
+  <p>comunidadnmroller.com · Documento interno · Equipo de ventas y atención al cliente · Jun 2026</p>
+</div>
+
+<div class="diagram">
+
+  <!-- ══════════════════════════
+       FLUJO 1 — VENTA DE PLANES
+  ══════════════════════════ -->
+  <div class="flow">
+    <div class="flow-title ft-blue">Flujo 1 — Venta de Planes (Home)</div>
+    <div class="row">
+      <div class="node n-visitor"><span class="node-name">👤 Visitante</span><span class="node-sub">Interesado en patinar</span></div>
+      <div class="arrow">→</div>
+      <div class="node n-page"><span class="node-name">🏠 Home</span><span class="node-sub">Ve planes y precios</span></div>
+      <div class="arrow">→</div>
+      <div class="node n-page"><span class="node-name">🛒 CTA "Comprar Plan"</span></div>
+      <div class="arrow">→</div>
+      <div class="paths">
+
+        <div>
+          <div class="path-label">Camino A — Compra directa</div>
+          <div class="path-row">
+            <div class="node n-mp"><span class="node-name">💳 Mercado Pago</span><span class="node-sub">Pago externo</span></div>
+            <div class="arrow">→</div>
+            <div class="node n-page"><span class="node-name">📤 /pago-confirmado</span><span class="node-sub">Sube comprobante</span></div>
+            <div class="arrow">→</div>
+            <div class="col">
+              <div class="node n-getresponse"><span class="node-name">📧 GetResponse</span><span class="node-sub">Secuencia email auto</span></div>
+              <div class="node n-slack"><span class="node-name">💬 Slack</span><span class="node-sub">Lead notificado al equipo</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="path-label">Camino B — Agenda turno</div>
+          <div class="path-row">
+            <div class="node n-popup"><span class="node-name">💬 Pop-up</span><span class="node-sub">Se despliega al hacer clic</span></div>
+            <div class="arrow">→</div>
+            <div class="col">
+              <div class="path-row">
+                <div class="node n-calendly"><span class="node-name">📅 Calendly</span><span class="node-sub">Agenda turno</span></div>
+                <div class="arrow">→</div>
+                <div class="node n-confirm"><span class="node-name">✅ Email Calendly</span><span class="node-sub">Confirmación automática</span></div>
+              </div>
+              <div class="path-row" style="margin-top:4px;">
+                <div class="node n-whatsapp"><span class="node-name">📱 WhatsApp (opcional)</span><span class="node-sub">Avisa al equipo desde el mismo pop-up</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="note">
+      <strong>Camino A:</strong> GetResponse + Slack se disparan en simultáneo al subir el comprobante.<br>
+      <strong>Camino B:</strong> <span class="alert">NO entra a Slack.</span> El pop-up ofrece Calendly (con email automático) y opcionalmente WhatsApp para avisar al equipo. Si avisa por WhatsApp, el equipo solo contrasta que aparezca en Calendly.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════
+       FLUJO 2 — CLASES + ALQUILER
+  ══════════════════════════ -->
+  <div class="flow">
+    <div class="flow-title ft-teal">Flujo 2 — Clases + Alquiler (sin equipo propio)</div>
+    <div class="row">
+      <div class="node n-visitor"><span class="node-name">👤 Visitante</span><span class="node-sub">Sin equipo propio</span></div>
+      <div class="arrow">→</div>
+      <div class="node n-page"><span class="node-name">📄 /clases-de-rollers-mas-alquiler</span><span class="node-sub">Ve sedes, horarios y precios</span></div>
+      <div class="arrow">→</div>
+      <div class="node n-page"><span class="node-name">🛒 CTA de compra</span></div>
+      <div class="arrow">→</div>
+      <div class="paths">
+
+        <div>
+          <div class="path-label">Camino A — Compra directa</div>
+          <div class="path-row">
+            <div class="node n-mp"><span class="node-name">💳 Mercado Pago</span><span class="node-sub">Pago externo</span></div>
+            <div class="arrow">→</div>
+            <div class="node n-page"><span class="node-name">📤 /pago-confirmado</span><span class="node-sub">Sube comprobante</span></div>
+            <div class="arrow">→</div>
+            <div class="col">
+              <div class="node n-getresponse"><span class="node-name">📧 GetResponse</span><span class="node-sub">Secuencia email auto</span></div>
+              <div class="node n-slack"><span class="node-name">💬 Slack</span><span class="node-sub">Lead notificado al equipo</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="path-label">Camino B — Agenda turno</div>
+          <div class="path-row">
+            <div class="node n-popup"><span class="node-name">💬 Pop-up</span><span class="node-sub">Se despliega al hacer clic</span></div>
+            <div class="arrow">→</div>
+            <div class="col">
+              <div class="path-row">
+                <div class="node n-calendly"><span class="node-name">📅 Calendly</span><span class="node-sub">Agenda turno</span></div>
+                <div class="arrow">→</div>
+                <div class="node n-confirm"><span class="node-name">✅ Email Calendly</span><span class="node-sub">Confirmación automática</span></div>
+              </div>
+              <div class="path-row" style="margin-top:4px;">
+                <div class="node n-whatsapp"><span class="node-name">📱 WhatsApp (opcional)</span><span class="node-sub">Avisa al equipo desde el mismo pop-up</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="note">
+      Mismo funcionamiento que Flujo 1. <span class="alert">Camino B no entra a Slack.</span> Seguimiento desde Calendly directamente.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════
+       FLUJO 3 — CLASE GRATIS
+  ══════════════════════════ -->
+  <div class="flow">
+    <div class="flow-title ft-red">Flujo 3 — Clase Gratis</div>
+    <div class="row">
+      <div class="node n-visitor"><span class="node-name">👤 Visitante</span><span class="node-sub">Primera vez, sin compromiso</span></div>
+      <div class="arrow">→</div>
+      <div class="node n-form"><span class="node-name">📋 /clase-gratis</span><span class="node-sub">Nombre, email, tel, sede</span></div>
+      <div class="arrow">→</div>
+      <div class="node n-confirm"><span class="node-name">✅ /clase-gratis-confirmada</span><span class="node-sub">Mensaje + WhatsApp</span></div>
+      <div class="arrow">→</div>
+      <div class="col">
+        <div class="node n-slack"><span class="node-name">💬 Slack</span><span class="node-sub">#registro-clases</span></div>
+        <div class="node n-whatsapp"><span class="node-name">📱 WhatsApp</span><span class="node-sub">Pre-llenado al usuario</span></div>
+      </div>
+    </div>
+    <div class="note"><strong>Acción del equipo:</strong> Reciben aviso en Slack → confirman cupo → el usuario llega con WhatsApp ya armado.</div>
+  </div>
+
+  <!-- ══════════════════════════
+       FLUJO 4 — NEWSLETTER
+  ══════════════════════════ -->
+  <div class="flow">
+    <div class="flow-title ft-gray">Flujo 4 — Newsletter</div>
+    <div class="row">
+      <div class="node n-visitor"><span class="node-name">👤 Visitante</span></div>
+      <div class="arrow">→</div>
+      <div class="node n-form"><span class="node-name">📋 /newsletter-desde-cero</span><span class="node-sub">Nombre, email</span></div>
+      <div class="arrow">→</div>
+      <div class="node n-confirm"><span class="node-name">✅ /registro-confirmado-newsletter</span></div>
+      <div class="arrow">→</div>
+      <div class="node n-getresponse"><span class="node-name">📧 GetResponse</span><span class="node-sub">Secuencia email automática</span></div>
+    </div>
+    <div class="note">100% automático — no requiere intervención del equipo.</div>
+  </div>
+
+  <!-- ══════════════════════════
+       FLUJO 5 — MASTERCLASS
+  ══════════════════════════ -->
+  <div class="flow">
+    <div class="flow-title ft-dark">Flujo 5 — Masterclass</div>
+    <div class="row">
+      <div class="node n-visitor"><span class="node-name">👤 Visitante</span></div>
+      <div class="arrow">→</div>
+      <div class="node n-page"><span class="node-name">🎯 /masterclass-de-patinaje</span><span class="node-sub">Landing del evento</span></div>
+      <div class="arrow">→</div>
+      <div class="paths">
+
+        <div>
+          <div class="path-label">Camino A — Usuario nuevo (con o sin equipo)</div>
+          <div class="path-row">
+            <div class="node n-popup"><span class="node-name">💬 Pop-up</span><span class="node-sub">Instrucciones según perfil</span></div>
+            <div class="arrow">→</div>
+            <div class="node n-page"><span class="node-name">📅 Turnos Web</span><span class="node-sub">Reserva y paga desde la app</span></div>
+            <div class="arrow">→</div>
+            <div class="node n-whatsapp"><span class="node-name">📱 WhatsApp (opcional)</span><span class="node-sub"><span style="color:#D01C1F; font-weight:700;">EQUIPO: estar atento para asistir</span></span></div>
+          </div>
+          <div class="path-row" style="margin-top:6px;">
+            <div style="font-size:9px; color:#999; padding:4px 8px; background:#fafafa; border-radius:4px;">El usuario puede escribir por WhatsApp si necesita ayuda en Turnos Web</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="path-label">Camino B — Alumno existente</div>
+          <div class="path-row">
+            <div class="node n-whatsapp"><span class="node-name">📱 WhatsApp</span><span class="node-sub">EQUIPO: lo asiste</span></div>
+            <div class="arrow">→</div>
+            <div class="col">
+              <div style="font-size:10px; color:#333; background:#f0f0f0; padding:6px 8px; border-radius:4px; border-left:2px solid #333;">
+                <strong>EQUIPO le proporciona:</strong><br>
+                • Instrucciones de pago (alias si aplica)<br>
+                • Acredita el beneficio del pase<br>
+                • Guía a Turnos Web para completar reserva
+              </div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="node n-page"><span class="node-name">📅 Turnos Web</span><span class="node-sub">Usuario completa reserva</span></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="path-label">Camino C — Cupo lleno o ventas cerradas</div>
+          <div class="path-row">
+            <div class="node n-wait"><span class="node-name">⏳ Lista de espera</span><span class="node-sub">/masterclass/:slug/lista-de-espera</span></div>
+            <div class="arrow">→</div>
+            <div class="node n-confirm"><span class="node-name">✅ /lista-de-espera-confirmada</span></div>
+            <div class="arrow">→</div>
+            <div class="node n-getresponse"><span class="node-name">📧 GetResponse</span><span class="node-sub">Secuencia automática (sin acción)</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="note" style="background:#fffbeb; border-left-color:#f59e0b;">
+      <span style="color:#D01C1F; font-weight:700;">PARA EL EQUIPO DE VENTAS:</span> Puntos de contacto clave en <span style="background:#25D366; color:#fff; padding:2px 6px; border-radius:3px; font-weight:700; font-size:10px;">WhatsApp</span> (Camino A y B). En Camino B, proporcionen: instrucciones de pago (alias si aplica), acrediten el beneficio, guíen a Turnos Web. Camino C es automático. <span style="font-size:10px; color:#666; font-style:italic;">Post-proceso (Marketing descarga/sube a GetResponse mensualmente).</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════
+       FLUJO 6 — SOCIOS SPORTCLUB
+  ══════════════════════════ -->
+  <div class="flow">
+    <div class="flow-title ft-gold">Flujo 6 — Socios SportClub</div>
+    <div class="row">
+      <div class="node n-visitor"><span class="node-name">🏃 Socio SportClub</span><span class="node-sub">Plan Plus/Total/Elite/Flex</span></div>
+      <div class="arrow">→</div>
+      <div class="node n-form"><span class="node-name">📋 /exclusivo-de-socios-sportclub</span><span class="node-sub">Plan, sede, nivel, alquiler</span></div>
+      <div class="arrow">→</div>
+      <div class="node n-confirm"><span class="node-name">✅ /exclusivo-de-socios-sportclub-confirmado</span><span class="node-sub">WhatsApp pre-llenado</span></div>
+      <div class="arrow">→</div>
+      <div class="col">
+        <div class="node n-slack"><span class="node-name">💬 Slack</span><span class="node-sub">#registro-socios-sportclub</span></div>
+        <div class="node n-getresponse"><span class="node-name">📧 GetResponse</span><span class="node-sub">Lista SportClub</span></div>
+      </div>
+    </div>
+    <div class="note"><strong>Slack muestra:</strong> nombre · sede · plan · nivel · si necesita alquiler → equipo coordina por WhatsApp.</div>
+  </div>
+
+</div>
+
+<!-- TABLA DE PÁGINAS -->
+<table class="url-table">
+  <thead>
+    <tr><th>Página</th><th>URL</th><th>Tipo</th><th>Quién la usa</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Home</strong></td><td><span class="url">comunidadnmroller.com/</span></td><td><span class="badge b-info">Vitrina + venta</span></td><td>Todo visitante</td></tr>
+    <tr><td><strong>Pago confirmado</strong></td><td><span class="url">/pago-confirmado</span></td><td><span class="badge b-confirm">Confirmación</span></td><td>Tras Mercado Pago (Flujos 1 y 2)</td></tr>
+    <tr><td><strong>Clases + Alquiler</strong></td><td><span class="url">/clases-de-rollers-mas-alquiler</span></td><td><span class="badge b-info">Landing venta</span></td><td>Sin equipo propio</td></tr>
+    <tr><td><strong>Clase Gratis</strong></td><td><span class="url">/clase-gratis</span></td><td><span class="badge b-form">Formulario</span></td><td>Primera vez</td></tr>
+    <tr><td><strong>Confirmación clase gratis</strong></td><td><span class="url">/clase-gratis-confirmada</span></td><td><span class="badge b-confirm">Confirmación</span></td><td>—</td></tr>
+    <tr><td><strong>Newsletter</strong></td><td><span class="url">/newsletter-desde-cero</span></td><td><span class="badge b-form">Formulario</span></td><td>Quiere aprender</td></tr>
+    <tr><td><strong>Confirmación newsletter</strong></td><td><span class="url">/registro-confirmado-newsletter</span></td><td><span class="badge b-confirm">Confirmación</span></td><td>—</td></tr>
+    <tr><td><strong>Masterclass</strong></td><td><span class="url">/masterclass-de-patinaje</span></td><td><span class="badge b-info">Landing evento</span></td><td>Evento puntual</td></tr>
+    <tr><td><strong>Lista de espera masterclass</strong></td><td><span class="url">/masterclass-de-patinaje/:slug/lista-de-espera</span></td><td><span class="badge b-wait">Lista espera</span></td><td>Cupo lleno o ventas cerradas</td></tr>
+    <tr><td><strong>Lista espera confirmada</strong></td><td><span class="url">/masterclass-de-patinaje/lista-de-espera-confirmada</span></td><td><span class="badge b-confirm">Confirmación</span></td><td>→ GetResponse automático</td></tr>
+    <tr><td><strong>Socios SportClub</strong></td><td><span class="url">/exclusivo-de-socios-sportclub</span></td><td><span class="badge b-form">Formulario</span></td><td>Socios SportClub</td></tr>
+    <tr><td><strong>Confirmación SportClub</strong></td><td><span class="url">/exclusivo-de-socios-sportclub-confirmado</span></td><td><span class="badge b-confirm">Confirmación</span></td><td>—</td></tr>
+    <tr><td><strong>Tutoriales</strong></td><td><span class="url">/tutoriales-de-patinaje</span></td><td><span class="badge b-info">Contenido</span></td><td>Alumnos activos</td></tr>
+    <tr><td><strong>Ruta de aprendizaje</strong></td><td><span class="url">/ruta-de-aprendizaje</span></td><td><span class="badge b-info">Contenido</span></td><td>Orientación de niveles</td></tr>
+    <tr><td><strong>Preguntas frecuentes</strong></td><td><span class="url">/preguntas-frecuentes</span></td><td><span class="badge b-info">Soporte</span></td><td>Dudas comunes</td></tr>
+  </tbody>
+</table>
+
+<!-- LEYENDA -->
+<div class="legend">
+  <div style="width:100%; font-size:10px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px;">Leyenda</div>
+  <div class="leg"><div class="leg-box" style="background:#f3f4f6; border:1.5px solid #d1d5db;"></div>Visitante</div>
+  <div class="leg"><div class="leg-box" style="background:#fff; border:1.5px solid #D01C1F;"></div>Página del sitio</div>
+  <div class="leg"><div class="leg-box" style="background:#dbeafe; border:1.5px solid #3b82f6;"></div>Formulario</div>
+  <div class="leg"><div class="leg-box" style="background:#dcfce7; border:1.5px solid #22c55e;"></div>Confirmación / Éxito</div>
+  <div class="leg"><div class="leg-box" style="background:#4a154b;"></div>Slack (notif. equipo)</div>
+  <div class="leg"><div class="leg-box" style="background:#25D366;"></div>WhatsApp</div>
+  <div class="leg"><div class="leg-box" style="background:#009ee3;"></div>Mercado Pago</div>
+  <div class="leg"><div class="leg-box" style="background:#006bff;"></div>Calendly</div>
+  <div class="leg"><div class="leg-box" style="background:#f5f3ff; border:1.5px solid #7c3aed;"></div>Pop-up instrucciones</div>
+  <div class="leg"><div class="leg-box" style="background:#fff7ed; border:1.5px solid #f97316;"></div>Acción manual (equipo)</div>
+  <div class="leg"><div class="leg-box" style="background:#f0fdf4; border:1.5px solid #86efac;"></div>GetResponse (email)</div>
+  <div class="leg"><div class="leg-box" style="background:#fce7f3; border:1.5px solid #ec4899;"></div>Lista de espera</div>
+</div>
+
+</body>
+</html>
