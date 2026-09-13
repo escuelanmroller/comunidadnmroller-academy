@@ -110,7 +110,7 @@ Piezas relacionadas que ya existen y esto tendría que articular, no duplicar:
 5. **Talle de casco — S/M/L.** Campo propio en "Tu equipo", separado de la talla de ropa/protecciones. Por ahora solo las 3 etiquetas (S/M/L); las medidas en cm de cada una quedan **pendientes de definir** para una iteración posterior.
 6. **Bloque de acompañante — solo para el pack 2x1.** Si el pack elegido es Clase 2x1, aparece un bloque adicional pidiendo DNI, nombre, apellido y email de la segunda persona (con el email que usó para registrarse en Turnos Web), para poder acreditarle el beneficio a ella también. Para los otros dos packs, este bloque no existe.
 7. **Retiro/devolución de equipo: solo en la sede, sin costo extra.** No se envía a domicilio, y se enmarca como beneficio ya incluido en lo que pagó — nunca como "hay un costo de traslado".
-8. **Ausencia sin aviso = clase perdida.** Si el alumno no avisa por WhatsApp con al menos 48hs de anticipación que no va a poder ir, la clase queda tomada (no se recupera). El copy nunca explica el motivo logístico/de costos detrás de la regla — solo comunica la consecuencia, en tono neutro.
+8. **Ausencia sin aviso = clase perdida.** Si el alumno no avisa por WhatsApp con entre 24 y 48hs de anticipación que no va a poder ir, la clase queda tomada (no se recupera). El copy nunca explica el motivo logístico/de costos detrás de la regla — solo comunica la consecuencia, en tono neutro. (Resuelto 13-sep-2026: era un rango, no dos reglas contradictorias — ver nota más abajo.)
 
 ## ✅ Construido en el sitio real (12-sep-2026)
 
@@ -174,7 +174,7 @@ Contenido que debería llevar cada email, según lo que dictó:
 - La reserva/turno solo es válido si quedó definido con **24hs de anticipación** a la clase.
 - Tiene que sumarse al **grupo correspondiente** de la clase/sede a la que va a asistir.
 - Si no se presenta a la clase, **se toma como vista/consumida** — para evitar eso, tiene que avisar por WhatsApp con 24hs de anticipación si no puede ir.
-  - ⚠️ **Nota de Claude**: esto dice "24hs" para avisar una ausencia — pero la regla ya construida en el formulario (`AltaAlquilerForm.tsx`) dice **48hs** para ese mismo aviso (ver regla de negocio #8, más arriba en este documento). Quedó sin resolver cuál de las dos es la correcta; conviene unificarlo antes de escribir el email real.
+  - ✅ **Resuelto (13-sep-2026)**: Gumercindo definió el rango **entre 24 y 48 horas** de anticipación para avisar una ausencia — no era una contradicción entre 24 y 48, sino una ventana. Actualizado el copy en `AltaAlquilerForm.tsx` y la regla de negocio #8 más arriba en este documento.
 
 **Específico Clase 2x1:**
 - Ambos tienen que ir juntos: misma clase, mismo horario, misma sede.
@@ -192,4 +192,3 @@ Contenido que debería llevar cada email, según lo que dictó:
 
 1. **A quién aplica exactamente:** hoy se muestra para los 3 packs de Clases + Alquiler. Falta confirmar esto contra el pricing real de `PricingAlquilerSection.tsx`, que no modela exactamente estos 3 packs de la misma forma.
 2. **Corte / migración del Tiiny:** el formulario de Tiiny sigue activo y recibiendo alumnos reales todos los días. Gumercindo confirmó (12-sep-2026) que esto **no lo reemplaza todavía** — conviven. Falta definir hasta cuándo y en qué condición pasa a reemplazarlo del todo.
-3. **24hs vs. 48hs para avisar ausencia** — ver nota arriba, hay una contradicción entre lo que dice el formulario construido y lo que se pidió para el email.

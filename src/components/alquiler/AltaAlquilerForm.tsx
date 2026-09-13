@@ -350,7 +350,7 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
           Solo se puede reprogramar (hasta 2 veces, sin costo, misma sede) si falla algo ajeno a nosotros — lluvia o ausencia del profe. Eso se gestiona por WhatsApp, no desde acá.
         </div>
         <div className="text-xs text-foreground/55 leading-relaxed pt-1 border-t border-foreground/10">
-          Si no vas a poder ir a una clase, avisanos por WhatsApp con al menos <strong className="text-foreground/70">48 horas de anticipación</strong>. Sin ese aviso, la clase queda tomada.
+          Si no vas a poder ir a una clase, avisanos por WhatsApp con <strong className="text-foreground/70">entre 24 y 48 horas de anticipación</strong>. Sin ese aviso, la clase queda tomada.
         </div>
       </div>
 
