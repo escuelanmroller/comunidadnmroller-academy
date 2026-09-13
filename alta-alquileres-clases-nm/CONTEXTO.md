@@ -147,7 +147,7 @@ Del lado de este repo ya está listo: `notify-alta-alquiler/index.ts` manda `tal
 A pedido de Gumercindo, viendo las capturas de la pantalla real:
 - La pantalla final ("¡Ya tenemos tus datos!") ahora tiene un bloque **"⚑ Anotado como fijo"** que reitera sede+día+hora (y las 4 fechas concretas si es Pack 4 Clases) como el turno permanente — no solo dice "tu equipo va a estar preparado", refuerza que ese horario no rota.
 - El bloque "Preparate para tu primera clase" + panel de Fly Free se **movió** de la pantalla de "Comprobante recibido" a esta pantalla final — solo para Clases + Alquiler (`isAlquiler`). Para NM/Masterclass sigue igual donde estaba (no tienen este paso nuevo, es el único lugar donde ven ese aviso). Se ajustó también el copy del bloque movido: ya no invita a "alquilar el equipo" (redundante, ya lo compraron incluido), pasa a invitar a comprar equipo propio a futuro.
-- El bloque "¿Cómo seguimos?" (los 3 pasos genéricos: registrate en la app / cargá tu comprobante / revisá tu correo) **también se sacó**, solo para `isAlquiler` — el paso siguiente real ahí es directo el formulario de alta de equipo/turno, no esos 3 pasos pensados para el flujo de planes NM. Sigue igual para NM/Masterclass.
+- El bloque "¿Cómo seguimos?" (los 3 pasos genéricos: registrate en la app / cargá tu comprobante / revisá tu correo) se oculta, pero **solo después de subir el comprobante** (`isAlquiler && done`) — antes de eso sigue apareciendo igual que siempre. Primer intento lo sacaba también antes de subir el comprobante, corregido tras revisar con Gumercindo contra la pantalla real.
 
 ## Preguntas que quedan abiertas
 
