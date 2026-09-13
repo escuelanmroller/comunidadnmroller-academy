@@ -162,7 +162,7 @@ A pedido de Gumercindo:
   ```bash
   supabase functions deploy notify-alta-alquiler --project-ref bosutrnpmpjxylcgjmbt --no-verify-jwt
   ```
-- 💡 **Idea para más adelante (todavía no construida)**: armar un mensaje/enlace personalizado para que el comprador le comparta a su acompañante por WhatsApp, invitándolo a bajar la app Turnos Web — Gumercindo pidió dejarlo para después de resolver esto.
+- ✅ **Construido (13-sep-2026)**: botón **"Compartirle la app y el turno a mi compañero/a"** — abre WhatsApp sin número fijo (`wa.me/?text=`, el comprador elige el contacto, ya que no tenemos el teléfono del acompañante) con un mensaje que incluye los links de descarga de Turnos Web, el turno fijo (si ya está elegido), y le pide directamente al acompañante que **responda con su DNI, email y WhatsApp** (los mismos con los que se registró en Turnos Web) — para que el comprador pueda copiar esa respuesta directo a los campos del formulario.
 
 ## 💡 Idea futura (13-sep-2026): tagging de leads + email personalizado por plan — todavía sin construir
 
