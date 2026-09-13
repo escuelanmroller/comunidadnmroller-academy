@@ -18,10 +18,14 @@ const schema = z.object({
   talleCasco: z.string().trim().max(10),
   acompanante: z
     .object({
-      nombre: z.string().trim().max(100),
-      apellido: z.string().trim().max(100),
-      dni: z.string().trim().max(30),
-      email: z.string().trim().email().max(255),
+      pendiente: z.boolean().optional().default(false),
+      nombre: z.string().trim().max(100).optional(),
+      apellido: z.string().trim().max(100).optional(),
+      dni: z.string().trim().max(30).optional(),
+      email: z.string().trim().email().max(255).optional(),
+      talleCalzado: z.string().trim().max(60).optional(),
+      talleRopa: z.string().trim().max(10).optional(),
+      talleCasco: z.string().trim().max(10).optional(),
     })
     .optional()
     .nullable(),
@@ -55,6 +59,16 @@ Deno.serve(async (req) => {
 
     const horarioTexto = `${turnoDia} ${turnoHora}hs (turno fijo)`;
 
+    // Texto del acompañante 2x1 — o bien viene completo (identidad + equipo),
+    // o el comprador marcó que todavía no tiene los datos y los manda después
+    // por WhatsApp. En los dos casos queda registrado, para que el equipo
+    // pueda hacer seguimiento si quedó "pendiente".
+    const acompananteTexto = !acompanante
+      ? null
+      : acompanante.pendiente
+        ? "PENDIENTE — el comprador mandó los datos del acompañante después, por WhatsApp"
+        : `${acompanante.nombre} ${acompanante.apellido} · DNI ${acompanante.dni} · ${acompanante.email} · Calzado: ${acompanante.talleCalzado} · Ropa: ${acompanante.talleRopa} · Casco: ${acompanante.talleCasco}`;
+
     // --- Excel (planilla "alquiler nm app NUEVO", pestaña "Registros") ---
     // El Apps Script hoy solo tiene 12 columnas fijas (sin una propia para
     // casco ni acompañante) — mandamos `talle_casco` como parámetro nuevo
@@ -63,50 +77,76 @@ Deno.serve(async (req) => {
     // tanto, para no perder el dato en el medio. Sacar el respaldo de acá
     // una vez confirmado que la columna nueva funciona (ver CONTEXTO.md).
     const observacionesExtra = [
-      acompanante ? `Acompañante 2x1: ${acompanante.nombre} ${acompanante.apellido}, DNI ${acompanante.dni}, ${acompanante.email}` : null,
+      acompananteTexto ? `Acompañante 2x1: ${acompananteTexto}` : null,
       notas?.trim() || null,
     ].filter(Boolean).join(" · ");
 
-    let excelOk = false;
-    try {
-      const params = new URLSearchParams({
-        nombre,
-        apellido: "",
-        whatsapp: telefono,
-        correo: email,
-        dni,
-        pack: planLabel,
+    const packEtiquetado = planSlug === "clase-2x1" ? `${planLabel} · 2X1` : planLabel;
+
+    const enviarFilaExcel = async (params: Record<string, string>) => {
+      try {
+        const qs = new URLSearchParams(params);
+        const res = await fetch(`${APPS_SCRIPT_URL}?${qs.toString()}`, { method: "GET" });
+        return res.ok;
+      } catch (e) {
+        console.warn("[alta-alquiler] Apps Script (Excel) falló:", e);
+        return false;
+      }
+    };
+
+    // Fila del comprador principal.
+    const excelOk = await enviarFilaExcel({
+      nombre,
+      apellido: "",
+      whatsapp: telefono,
+      correo: email,
+      dni,
+      pack: packEtiquetado,
+      sede: sedeNombre,
+      horario: horarioTexto,
+      talle_calzado: talleCalzado,
+      talle_ropa: talleRopa,
+      talle_casco: talleCasco, // requiere el parche del Apps Script — ver CONTEXTO.md
+      observaciones: `Talle casco: ${talleCasco}${observacionesExtra ? " · " + observacionesExtra : ""}`,
+    });
+
+    // Fila propia del acompañante 2x1 — solo si ya tenemos sus datos completos
+    // (no cuando quedó "pendiente"). Comparte sede/turno con el comprador,
+    // pero necesita su propia fila porque también hay que prepararle equipo.
+    let excelOkAcompanante: boolean | null = null;
+    if (acompanante && !acompanante.pendiente) {
+      excelOkAcompanante = await enviarFilaExcel({
+        nombre: acompanante.nombre ?? "",
+        apellido: acompanante.apellido ?? "",
+        whatsapp: "",
+        correo: acompanante.email ?? "",
+        dni: acompanante.dni ?? "",
+        pack: `${planLabel} · 2X1 — ACOMPAÑANTE`,
         sede: sedeNombre,
         horario: horarioTexto,
-        talle_calzado: talleCalzado,
-        talle_ropa: talleRopa,
-        talle_casco: talleCasco, // requiere el parche del Apps Script — ver CONTEXTO.md
-        observaciones: `Talle casco: ${talleCasco}${observacionesExtra ? " · " + observacionesExtra : ""}`,
+        talle_calzado: acompanante.talleCalzado ?? "",
+        talle_ropa: acompanante.talleRopa ?? "",
+        talle_casco: acompanante.talleCasco ?? "",
+        observaciones: `Acompañante 2x1 de ${nombre} (DNI ${dni})`,
       });
-      const res = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`, { method: "GET" });
-      excelOk = res.ok;
-    } catch (e) {
-      console.warn("[alta-alquiler] Apps Script (Excel) falló:", e);
     }
 
     // --- Slack (canal nuevo, no bloqueante) ---
     const slackText = [
-      `*🛼 Alta de alumno · Clases + Alquiler*`,
+      `*🛼 Alta de alumno · Clases + Alquiler${planSlug === "clase-2x1" ? " · 👥 2X1" : ""}*`,
       ``,
       `*Nombre:* ${nombre}`,
       `*DNI:* ${dni}`,
       `*WhatsApp:* ${telefono}`,
       `*Email:* ${email}`,
-      `*Pack:* ${planLabel}`,
+      `*Pack:* ${packEtiquetado}`,
       `*Sede:* ${sedeNombre}`,
       `*Turno fijo:* ${turnoDia} ${turnoHora}hs`,
       fechas.length ? `*Fechas (${fechas.length}):* ${fechas.join(" · ")}` : null,
       `*Talle calzado:* ${talleCalzado}`,
       `*Talla ropa:* ${talleRopa}`,
       `*Talle casco:* ${talleCasco}`,
-      acompanante
-        ? `*Acompañante 2x1:* ${acompanante.nombre} ${acompanante.apellido} · DNI ${acompanante.dni} · ${acompanante.email}`
-        : null,
+      acompananteTexto ? `*Acompañante 2x1:* ${acompananteTexto}` : null,
       notas?.trim() ? `*Notas:* ${notas.trim()}` : null,
     ].filter(Boolean).join("\n");
 
@@ -117,7 +157,7 @@ Deno.serve(async (req) => {
     });
 
     return new Response(
-      JSON.stringify({ ok: true, slackOk, excelOk }),
+      JSON.stringify({ ok: true, slackOk, excelOk, excelOkAcompanante }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (e) {

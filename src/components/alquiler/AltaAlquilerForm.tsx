@@ -101,10 +101,15 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
   const [talleCalzado, setTalleCalzado] = useState("");
   const [talleRopa, setTalleRopa] = useState("");
   const [talleCasco, setTalleCasco] = useState("");
+  const [compDatosPendientes, setCompDatosPendientes] = useState(false);
   const [compNombre, setCompNombre] = useState("");
   const [compApellido, setCompApellido] = useState("");
   const [compDni, setCompDni] = useState("");
   const [compEmail, setCompEmail] = useState("");
+  const [compSinRollers, setCompSinRollers] = useState(false);
+  const [compTalleCalzado, setCompTalleCalzado] = useState("");
+  const [compTalleRopa, setCompTalleRopa] = useState("");
+  const [compTalleCasco, setCompTalleCasco] = useState("");
   const [notas, setNotas] = useState("");
   const [enviado, setEnviado] = useState(false);
   const [enviando, setEnviando] = useState(false);
@@ -127,7 +132,15 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
     (sinRollers || talleCalzado.trim().length > 0) &&
     !!talleRopa &&
     !!talleCasco &&
-    (!es2x1 || (compNombre.trim() && compApellido.trim() && compDni.trim() && /^\S+@\S+\.\S+$/.test(compEmail)));
+    (!es2x1 ||
+      compDatosPendientes ||
+      (compNombre.trim() &&
+        compApellido.trim() &&
+        compDni.trim() &&
+        /^\S+@\S+\.\S+$/.test(compEmail) &&
+        (compSinRollers || compTalleCalzado.trim().length > 0) &&
+        !!compTalleRopa &&
+        !!compTalleCasco));
 
   const handleSedeChange = (value: string) => {
     setSedeId(value);
@@ -161,7 +174,20 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
           talleCalzado: sinRollers ? "no aplica (trae sus rollers)" : talleCalzado,
           talleRopa,
           talleCasco,
-          acompanante: es2x1 ? { nombre: compNombre, apellido: compApellido, dni: compDni, email: compEmail } : null,
+          acompanante: !es2x1
+            ? null
+            : compDatosPendientes
+              ? { pendiente: true }
+              : {
+                  pendiente: false,
+                  nombre: compNombre,
+                  apellido: compApellido,
+                  dni: compDni,
+                  email: compEmail,
+                  talleCalzado: compSinRollers ? "no aplica (trae sus rollers)" : compTalleCalzado,
+                  talleRopa: compTalleRopa,
+                  talleCasco: compTalleCasco,
+                },
           notas: notas.trim() || null,
         },
       });
@@ -192,11 +218,21 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
         ? `Mis 4 fechas: ${fechas.map((f) => formatFecha(f)).join(" · ")}.`
         : "",
       `Talle calzado: ${sinRollers ? "no necesito (llevo mis rollers)" : talleCalzado}. Talla ropa: ${talleRopa}. Talle casco: ${talleCasco}.`,
-      es2x1 ? `Acompañante 2x1: ${compNombre} ${compApellido}, DNI ${compDni}, email ${compEmail}.` : "",
+      es2x1
+        ? compDatosPendientes
+          ? "Acompañante 2x1: te mando sus datos después por acá."
+          : `Acompañante 2x1: ${compNombre} ${compApellido}, DNI ${compDni}, email ${compEmail}. Calzado: ${compSinRollers ? "no necesita" : compTalleCalzado}, ropa ${compTalleRopa}, casco ${compTalleCasco}.`
+        : "",
       notas.trim() ? `Notas: ${notas.trim()}.` : "",
     ].filter(Boolean);
     return `https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(lineas.join(" "))}`;
-  }, [nombre, dni, planLabel, sedeId, turnoElegido, fechas, sinRollers, talleCalzado, talleRopa, talleCasco, es2x1, compNombre, compApellido, compDni, compEmail, notas]);
+  }, [nombre, dni, planLabel, sedeId, turnoElegido, fechas, sinRollers, talleCalzado, talleRopa, talleCasco, es2x1, compDatosPendientes, compNombre, compApellido, compDni, compEmail, compSinRollers, compTalleCalzado, compTalleRopa, compTalleCasco, notas]);
+
+  // Botón de ayuda del bloque de acompañante — mensaje corto y genérico,
+  // no depende de tener los datos completos todavía.
+  const mensajeAyuda2x1 = `https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(
+    "[ALTA-ALQUILER-2X1] Hola! Necesito ayuda para cargar los datos de mi acompañante del plan 2x1.",
+  )}`;
 
   if (enviado) {
     const sedeElegida = SEDES_ALQUILER.find((s) => s.id === sedeId)?.nombre;
@@ -399,28 +435,131 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
               Solo para 2x1
             </span>
           </div>
+          <p className="text-xs text-foreground/70 leading-relaxed">
+            Van a asistir <strong className="text-foreground">juntos, al mismo turno</strong> — mismo día, mismo horario y mismo profe, en la misma sede. No son dos turnos separados.
+          </p>
           <p className="text-xs text-foreground/60">
             Para acreditarle el beneficio, cargá los datos con los que se registró en Turnos Web.
           </p>
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="alq-comp-nombre">Nombre *</Label>
-              <Input id="alq-comp-nombre" value={compNombre} onChange={(e) => setCompNombre(e.target.value)} placeholder="Nombre" />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="alq-comp-apellido">Apellido *</Label>
-              <Input id="alq-comp-apellido" value={compApellido} onChange={(e) => setCompApellido(e.target.value)} placeholder="Apellido" />
-            </div>
+
+          <div className="flex items-start gap-2 pt-1 border-t border-[#F5B800]/20">
+            <Checkbox
+              id="alq-comp-pendiente"
+              checked={compDatosPendientes}
+              onCheckedChange={(v) => setCompDatosPendientes(v === true)}
+              className="mt-0.5"
+            />
+            <Label htmlFor="alq-comp-pendiente" className="text-xs font-normal leading-snug cursor-pointer text-foreground/70">
+              Todavía no tengo los datos de mi acompañante — te los mando después por WhatsApp
+            </Label>
           </div>
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="alq-comp-dni">DNI *</Label>
-              <Input id="alq-comp-dni" inputMode="numeric" value={compDni} onChange={(e) => setCompDni(e.target.value)} placeholder="Sin puntos ni espacios" />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="alq-comp-email">Email (Turnos Web) *</Label>
-              <Input id="alq-comp-email" type="email" value={compEmail} onChange={(e) => setCompEmail(e.target.value)} placeholder="ejemplo@mail.com" />
-            </div>
+
+          {!compDatosPendientes && (
+            <>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="alq-comp-nombre">Nombre *</Label>
+                  <Input id="alq-comp-nombre" value={compNombre} onChange={(e) => setCompNombre(e.target.value)} placeholder="Nombre" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="alq-comp-apellido">Apellido *</Label>
+                  <Input id="alq-comp-apellido" value={compApellido} onChange={(e) => setCompApellido(e.target.value)} placeholder="Apellido" />
+                </div>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="alq-comp-dni">DNI *</Label>
+                  <Input id="alq-comp-dni" inputMode="numeric" value={compDni} onChange={(e) => setCompDni(e.target.value)} placeholder="Sin puntos ni espacios" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="alq-comp-email">Email (Turnos Web) *</Label>
+                  <Input id="alq-comp-email" type="email" value={compEmail} onChange={(e) => setCompEmail(e.target.value)} placeholder="ejemplo@mail.com" />
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-4 pt-2 border-t border-[#F5B800]/20">
+                <div className="space-y-1.5">
+                  <Label htmlFor="alq-comp-calzado">Talle de calzado *</Label>
+                  <Input
+                    id="alq-comp-calzado"
+                    type="number"
+                    inputMode="numeric"
+                    min={28}
+                    max={48}
+                    placeholder="Ej: 39"
+                    value={compTalleCalzado}
+                    disabled={compSinRollers}
+                    onChange={(e) => setCompTalleCalzado(e.target.value)}
+                  />
+                  <div className="flex items-start gap-2 pt-1">
+                    <Checkbox
+                      id="alq-comp-sin-rollers"
+                      checked={compSinRollers}
+                      onCheckedChange={(v) => {
+                        const checked = v === true;
+                        setCompSinRollers(checked);
+                        if (checked) setCompTalleCalzado("");
+                      }}
+                      className="mt-0.5"
+                    />
+                    <Label htmlFor="alq-comp-sin-rollers" className="text-xs font-normal leading-snug cursor-pointer text-foreground/70">
+                      Ya tiene sus propios rollers
+                    </Label>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Talla de ropa (protecciones) *</Label>
+                  <Select value={compTalleRopa} onValueChange={setCompTalleRopa}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccioná su talla" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="XS">XS</SelectItem>
+                      <SelectItem value="S">S · hasta 60kg aprox.</SelectItem>
+                      <SelectItem value="M">M · 60–75kg</SelectItem>
+                      <SelectItem value="L">L · 75–90kg</SelectItem>
+                      <SelectItem value="XL">XL · 90kg+</SelectItem>
+                      <SelectItem value="XXL">XXL</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Talle de casco *</Label>
+                <Select value={compTalleCasco} onValueChange={setCompTalleCasco}>
+                  <SelectTrigger className="sm:w-1/2">
+                    <SelectValue placeholder="Seleccioná su talle" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TALLES_CASCO.map((t) => (
+                      <SelectItem key={t} value={t}>{t}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
+          )}
+
+          <div className="pt-2 border-t border-[#F5B800]/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <p className="text-[11px] text-foreground/55 leading-relaxed">
+              Tu acompañante también necesita la app{" "}
+              <a href="https://play.google.com/store/apps/details?id=com.turnosweb.lite" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground/80">
+                Turnos Web (Google Play)
+              </a>
+              {" "}o{" "}
+              <a href="https://apps.apple.com/ar/app/turnosweb-app-2-0/id1169566678" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground/80">
+                App Store
+              </a>
+              .
+            </p>
+            <a
+              href={mensajeAyuda2x1}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-1.5 shrink-0 min-h-9 py-2 px-4 border border-[#25D366] text-[#25D366] font-bold uppercase tracking-[0.1em] text-[11px] whitespace-normal leading-tight text-center hover:bg-[#25D366] hover:text-white transition-colors"
+            >
+              ¿Necesitás ayuda?
+            </a>
           </div>
         </div>
       )}
