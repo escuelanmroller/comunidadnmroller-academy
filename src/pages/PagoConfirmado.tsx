@@ -343,10 +343,12 @@ const PagoConfirmado = () => {
           </section>
         )}
 
-        {/* 3 Pasos del pago aprobado — en Clases + Alquiler se saca: el paso
-            siguiente real es el formulario de alta de equipo/turno de más
-            abajo, no estos 3 pasos genéricos. */}
-        {!ofreceTransferencia && !isPending && !isAlquiler && <section className="pt-12 md:pt-16 px-6 bg-background">
+        {/* 3 Pasos del pago aprobado. Se muestra siempre ANTES de subir el
+            comprobante (`done` false) — recién cuando ya se subió y es
+            Clases + Alquiler se oculta, porque ahí el paso siguiente real
+            es el formulario de alta de equipo/turno, no estos 3 pasos
+            genéricos. Para NM/Masterclass sigue igual en los dos estados. */}
+        {!ofreceTransferencia && !isPending && !(isAlquiler && done) && <section className="pt-12 md:pt-16 px-6 bg-background">
           <div className="max-w-5xl mx-auto">
             <h2 className="font-display italic uppercase text-xl md:text-3xl font-black text-primary text-center mb-10">
               ¿Cómo seguimos?
