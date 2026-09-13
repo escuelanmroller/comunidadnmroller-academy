@@ -140,7 +140,7 @@ Del lado de este repo ya está listo: `notify-alta-alquiler/index.ts` manda `tal
 
 **Decisión (13-sep-2026): se deja así por ahora, no se sigue insistiendo con el redeploy del Apps Script.** El dato de casco no se pierde — sigue viajando en "Observaciones" como respaldo, visible para quien prepara el equipo, solo que no en su propia columna. Si en algún momento se quiere retomar, el fix ya está documentado en `PARCHE-apps-script-casco.md` y en `notify-alta-alquiler/index.ts` (que ya manda el parámetro correcto, solo falta que el script del lado de Google lo reciba).
 
-⚠️ Quedaron **6 filas de prueba** en la planilla (`TEST Claude - ignorar` a `6`) y sus mensajes correspondientes en `#alta-alquiler-alumnos` — pendiente borrarlas a mano cuando se quiera, Claude solo tiene lectura sobre esa planilla.
+⚠️ **Se acumularon ~15 filas de prueba** en la planilla — son todas contiguas al final, desde `TEST Claude - ignorar` (12-sep 10:55) hasta `TEST Acompañante 9` (13-sep 12:29). Se pueden borrar todas juntas (seleccionar ese bloque de filas y eliminarlas), junto con sus mensajes correspondientes en `#alta-alquiler-alumnos` — pendiente hacerlo a mano cuando se quiera, Claude solo tiene lectura sobre esa planilla.
 
 ### ✅ Ajuste de UX (13-sep-2026): turno fijo reforzado + Fly Free reubicado
 
@@ -158,10 +158,7 @@ A pedido de Gumercindo:
 - Se le pide **también el equipo** al acompañante (talle calzado + "ya tiene sus rollers", talla ropa, talle casco) — antes solo se pedía identidad, pero también hay que prepararle equipo a esa persona.
 - Texto chico con los links de descarga de Turnos Web (Google Play / App Store) para el acompañante, + botón **"¿Necesitás ayuda?"** a WhatsApp.
 - Cuando los datos del acompañante vienen completos (no pendiente), `notify-alta-alquiler` manda **una fila propia en el Excel** para el acompañante (mismo sede/turno, columna Pack con la etiqueta `· 2X1 — ACOMPAÑANTE`), además de la fila del comprador. El pack del comprador también queda etiquetado `· 2X1` y el título del mensaje de Slack suma `👥 2X1` — para identificar de un vistazo que es una compra 2x1 al mirar la planilla o Slack.
-- ⚠️ **Pendiente**: como el backend cambió (nueva forma del objeto `acompanante`, fila extra en Excel), hace falta **redeployar `notify-alta-alquiler`** de nuevo:
-  ```bash
-  supabase functions deploy notify-alta-alquiler --project-ref bosutrnpmpjxylcgjmbt --no-verify-jwt
-  ```
+- ✅ **Redeployado y probado (13-sep-2026)**: confirmado con un envío de prueba real que la fila del comprador queda etiquetada `· 2X1` y el acompañante entra en **su propia fila** con `· 2X1 — ACOMPAÑANTE`, mismo sede/turno, su propio talle de calzado/ropa. `slackOk: true` también.
 - ✅ **Construido (13-sep-2026)**: botón **"Compartirle la app y el turno a mi compañero/a"** — abre WhatsApp sin número fijo (`wa.me/?text=`, el comprador elige el contacto, ya que no tenemos el teléfono del acompañante) con un mensaje que incluye los links de descarga de Turnos Web, el turno fijo (si ya está elegido), y le pide directamente al acompañante que **responda con su DNI, email y WhatsApp** (los mismos con los que se registró en Turnos Web) — para que el comprador pueda copiar esa respuesta directo a los campos del formulario.
 
 ## 💡 Idea futura (13-sep-2026): tagging de leads + email personalizado por plan — todavía sin construir
