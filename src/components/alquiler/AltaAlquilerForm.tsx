@@ -115,6 +115,8 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
   const [enviando, setEnviando] = useState(false);
 
   const turnosDisponibles = useMemo(() => turnosDeSede(sedeId), [sedeId]);
+  // Rosedal tiene calzado hasta el 45; el resto de las sedes con alquiler solo hasta el 42.
+  const rangoCalzado = sedeId === "rosedal" ? { min: 34, max: 45 } : { min: 34, max: 42 };
   const turnoElegido = useMemo(() => {
     if (!turno) return null;
     const [dia, hora, disciplina] = turno.split("|");
@@ -382,8 +384,8 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
               id="alq-calzado"
               type="number"
               inputMode="numeric"
-              min={28}
-              max={48}
+              min={rangoCalzado.min}
+              max={rangoCalzado.max}
               placeholder="Ej: 39"
               value={talleCalzado}
               disabled={sinRollers}
@@ -502,8 +504,8 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
                     id="alq-comp-calzado"
                     type="number"
                     inputMode="numeric"
-                    min={28}
-                    max={48}
+                    min={rangoCalzado.min}
+                    max={rangoCalzado.max}
                     placeholder="Ej: 39"
                     value={compTalleCalzado}
                     disabled={compSinRollers}

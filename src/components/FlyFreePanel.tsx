@@ -2,7 +2,7 @@ import { ArrowRight, GraduationCap } from "lucide-react";
 import logoFlyFree from "@/assets/logo-flyfree-urban.webp";
 
 const FLY_FREE_KIT_URL = "https://lp.flyfreeurban.com/kit-de-iniciacion-adulto/";
-const FLY_FREE_MODELOS_URL = "https://www.flyfreeurban.com/marcas/";
+const FLY_FREE_MODELOS_URL = "https://www.flyfreeurban.com/rollers/?mpage=2";
 
 interface Props {
   /** Título del bloque. Default: el copy original ("¡Invertí en tu equipo propio!"). */
