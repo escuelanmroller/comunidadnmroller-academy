@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { AlertCircle, ShieldCheck, Clock, Send } from "lucide-react";
+import { AlertCircle, ShieldCheck, Clock, Send, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -81,7 +81,8 @@ const formatFecha = (d: Date) => {
 };
 
 const TALLES_ROPA = ["XS", "S", "M", "L", "XL", "XXL"] as const;
-const TALLES_CASCO = ["S", "M", "L"] as const;
+// El casco ya no se elige por talle: va siempre incluido en talla estándar.
+const CASCO_INCLUIDO = "Talla estándar (incluido)";
 
 const WHATSAPP_NUMERO = "5491165920600";
 
@@ -104,7 +105,6 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
   const [sinRollers, setSinRollers] = useState(false);
   const [talleCalzado, setTalleCalzado] = useState("");
   const [talleRopa, setTalleRopa] = useState("");
-  const [talleCasco, setTalleCasco] = useState("");
   const [compDatosPendientes, setCompDatosPendientes] = useState(false);
   const [compNombre, setCompNombre] = useState("");
   const [compApellido, setCompApellido] = useState("");
@@ -113,7 +113,6 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
   const [compSinRollers, setCompSinRollers] = useState(false);
   const [compTalleCalzado, setCompTalleCalzado] = useState("");
   const [compTalleRopa, setCompTalleRopa] = useState("");
-  const [compTalleCasco, setCompTalleCasco] = useState("");
   const [notas, setNotas] = useState("");
   const [enviado, setEnviado] = useState(false);
   const [enviando, setEnviando] = useState(false);
@@ -137,7 +136,6 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
     !!turno &&
     (sinRollers || talleCalzado.trim().length > 0) &&
     !!talleRopa &&
-    !!talleCasco &&
     (!es2x1 ||
       compDatosPendientes ||
       (compNombre.trim() &&
@@ -145,8 +143,7 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
         compDni.trim() &&
         /^\S+@\S+\.\S+$/.test(compEmail) &&
         (compSinRollers || compTalleCalzado.trim().length > 0) &&
-        !!compTalleRopa &&
-        !!compTalleCasco));
+        !!compTalleRopa));
 
   const handleSedeChange = (value: string) => {
     setSedeId(value);
@@ -179,7 +176,7 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
           fechas: fechas.map((f) => formatFecha(f)),
           talleCalzado: sinRollers ? "no aplica (trae sus rollers)" : talleCalzado,
           talleRopa,
-          talleCasco,
+          talleCasco: CASCO_INCLUIDO,
           acompanante: !es2x1
             ? null
             : compDatosPendientes
@@ -192,7 +189,7 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
                   email: compEmail,
                   talleCalzado: compSinRollers ? "no aplica (trae sus rollers)" : compTalleCalzado,
                   talleRopa: compTalleRopa,
-                  talleCasco: compTalleCasco,
+                  talleCasco: CASCO_INCLUIDO,
                 },
           notas: notas.trim() || null,
         },
@@ -223,16 +220,16 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
       fechas.length
         ? `Mis 4 fechas: ${fechas.map((f) => formatFecha(f)).join(" · ")}.`
         : "",
-      `Talle calzado: ${sinRollers ? "no necesito (llevo mis rollers)" : talleCalzado}. Talla ropa: ${talleRopa}. Talle casco: ${talleCasco}.`,
+      `Talle calzado: ${sinRollers ? "no necesito (llevo mis rollers)" : talleCalzado}. Talla ropa: ${talleRopa}. Casco: talla estándar (incluido).`,
       es2x1
         ? compDatosPendientes
           ? "Acompañante 2x1: te mando sus datos después por acá."
-          : `Acompañante 2x1: ${compNombre} ${compApellido}, DNI ${compDni}, email ${compEmail}. Calzado: ${compSinRollers ? "no necesita" : compTalleCalzado}, ropa ${compTalleRopa}, casco ${compTalleCasco}.`
+          : `Acompañante 2x1: ${compNombre} ${compApellido}, DNI ${compDni}, email ${compEmail}. Calzado: ${compSinRollers ? "no necesita" : compTalleCalzado}, ropa ${compTalleRopa}, casco talla estándar (incluido).`
         : "",
       notas.trim() ? `Notas: ${notas.trim()}.` : "",
     ].filter(Boolean);
     return `https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(lineas.join(" "))}`;
-  }, [nombre, dni, planLabel, sedeId, turnoElegido, fechas, sinRollers, talleCalzado, talleRopa, talleCasco, es2x1, compDatosPendientes, compNombre, compApellido, compDni, compEmail, compSinRollers, compTalleCalzado, compTalleRopa, compTalleCasco, notas]);
+  }, [nombre, dni, planLabel, sedeId, turnoElegido, fechas, sinRollers, talleCalzado, talleRopa, es2x1, compDatosPendientes, compNombre, compApellido, compDni, compEmail, compSinRollers, compTalleCalzado, compTalleRopa, notas]);
 
   // Botón de ayuda del bloque de acompañante — mensaje corto y genérico,
   // no depende de tener los datos completos todavía.
@@ -381,6 +378,23 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
       {/* Equipo */}
       <div className="space-y-3">
         <Label className="uppercase tracking-[0.12em] text-xs font-bold block">Tu equipo</Label>
+
+        <div className="flex items-start gap-2 border border-primary/25 bg-primary/5 p-3 text-xs text-foreground/80 leading-relaxed">
+          <ShieldCheck className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+          {esPack4
+            ? "Tu pack incluye casco, rollers y protecciones en cada una de tus 4 clases."
+            : es2x1
+              ? "Tu compra ya incluye casco, rollers y protecciones para vos y tu acompañante."
+              : "Tu compra ya incluye casco, rollers y protecciones."}
+        </div>
+
+        {esPack4 && (
+          <div className="flex items-start gap-2 border border-[#F5B800]/35 bg-[#F5B800]/5 p-3 text-xs text-foreground/80 leading-relaxed">
+            <Gift className="w-4 h-4 text-[#F5B800] mt-0.5 shrink-0" />
+            Recordá que usás el 50% de este pack como parte de pago para la compra de tu propio kit (hasta la 2da clase).
+          </div>
+        )}
+
         <div className="grid sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <Label htmlFor="alq-calzado">Talle de calzado (para los rollers) *</Label>
@@ -430,18 +444,11 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
         </div>
 
         <div className="space-y-1.5">
-          <Label>Talle de casco *</Label>
-          <Select value={talleCasco} onValueChange={setTalleCasco}>
-            <SelectTrigger className="sm:w-1/2">
-              <SelectValue placeholder="Seleccioná tu talle" />
-            </SelectTrigger>
-            <SelectContent>
-              {TALLES_CASCO.map((t) => (
-                <SelectItem key={t} value={t}>{t}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-foreground/50">Medidas en cm de cada talle — se suman más adelante.</p>
+          <Label>Casco</Label>
+          <div className="flex items-center gap-2 border border-foreground/15 bg-muted px-3 py-2.5 text-sm text-foreground/80 sm:w-1/2">
+            <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
+            Incluido — talla estándar, no hace falta elegir.
+          </div>
         </div>
 
         <div className="flex items-start gap-2 pt-3 border-t border-foreground/10 text-xs text-foreground/70 leading-relaxed">
@@ -549,17 +556,11 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label>Talle de casco *</Label>
-                <Select value={compTalleCasco} onValueChange={setCompTalleCasco}>
-                  <SelectTrigger className="sm:w-1/2">
-                    <SelectValue placeholder="Seleccioná su talle" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TALLES_CASCO.map((t) => (
-                      <SelectItem key={t} value={t}>{t}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label>Casco</Label>
+                <div className="flex items-center gap-2 border border-foreground/15 bg-muted px-3 py-2.5 text-sm text-foreground/80 sm:w-1/2">
+                  <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
+                  Incluido — talla estándar, no hace falta elegir.
+                </div>
               </div>
             </>
           )}
