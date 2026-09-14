@@ -82,7 +82,9 @@ const formatFecha = (d: Date) => {
 
 const TALLES_ROPA = ["XS", "S", "M", "L", "XL", "XXL"] as const;
 // El casco ya no se elige por talle: va siempre incluido en talla estándar.
-const CASCO_INCLUIDO = "Talla estándar (incluido)";
+// Corto a propósito: viaja como "talleCasco" a notify-alta-alquiler, que lo
+// valida con zod max(10) — ver supabase/functions/notify-alta-alquiler/index.ts.
+const CASCO_INCLUIDO = "Estándar";
 
 const WHATSAPP_NUMERO = "5491165920600";
 
