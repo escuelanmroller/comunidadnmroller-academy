@@ -41,10 +41,10 @@ const monthlyPlans: Plan[] = [
     efectivoPrice: "$30.000",
     vigencia: "Vigencia 15 días",
     features: [
-      "1 Clase grupal — solo en sedes con alquiler",
+      "1 Clase grupal para cualquier sede y horario",
       "Podés reprogramar hasta 2 veces sin cargo",
       "Acceso a todos los niveles y disciplinas",
-      "Incluye protecciones y casco (uso obligatorio)",
+      "Incluye protecciones y casco (uso obligatorio) — solo en sedes con alquiler",
       "Bonificación del 100% si decidís migrar a un plan en plazo de 7 días",
     ],
     planSlug: "clase-unica",
