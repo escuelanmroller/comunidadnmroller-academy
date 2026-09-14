@@ -29,6 +29,10 @@ const turnosDeSede = (sedeId: string): ClaseSede[] => {
   const vistos = new Set<string>();
   return sede.clases
     .filter((c) => claseTieneAlquiler(sede, c))
+    // El plan que se vende acá es de nivel inicial/principiante — nunca ofrecer
+    // como turno fijo una disciplina especial (Slalom, Urbano, etc.) aunque esa
+    // clase puntual también tenga alquiler.
+    .filter((c) => c.disciplina === NIVEL_UNIFICADO)
     .filter((c) => {
       const key = `${c.dia}-${c.hora}-${c.disciplina}`;
       if (vistos.has(key)) return false;
