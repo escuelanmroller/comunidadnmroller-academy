@@ -101,6 +101,13 @@ export const sedes: Sede[] = [
     lat: -34.6189,
     lng: -58.4359,
     mapsUrl: "https://maps.app.goo.gl/PoyVBEq58EbUdtM59",
+    alquiler: true,
+    // Alquiler solo en estos 2 turnos puntuales (Lunes y Martes 19h) — el resto
+    // de los horarios de la sede no tiene el servicio.
+    alquilerHorarios: [
+      { dia: "Lunes", hora: "19:00" },
+      { dia: "Martes", hora: "19:00" },
+    ],
     clases: [
       { dia: "Lunes", hora: "19:00", disciplina: NIVEL_UNIFICADO },
       { dia: "Lunes", hora: "20:00", disciplina: "Frenadas" },

@@ -92,7 +92,7 @@ const PLANES: Plan[] = [
     features: [
       "4 clases por mes",
       "Patines, protecciones y casco",
-      "Acceso a 7 sedes outdoor",
+      "Acceso a 8 sedes outdoor",
       "Nivel inicial y principiante",
     ],
     waPlan: "de Alquiler + Clases (4 clases)",

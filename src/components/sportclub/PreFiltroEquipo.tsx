@@ -176,7 +176,7 @@ const PreFiltroEquipo = () => {
               <p className="text-foreground/70 text-sm leading-relaxed mb-2 inline-flex items-start gap-1.5">
                 <MapPin className="w-4 h-4 text-secondary mt-0.5 shrink-0" />
                 <span>
-                  Son <strong>7 sedes</strong> con servicio de alquiler — vas a poder elegir
+                  Son <strong>8 sedes</strong> con servicio de alquiler — vas a poder elegir
                   tu sede.
                 </span>
               </p>

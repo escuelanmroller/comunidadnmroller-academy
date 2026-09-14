@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Clock, Package, X } from "lucide-react";
-import { Sede } from "@/data/sedes";
+import { Sede, claseTieneAlquiler } from "@/data/sedes";
 import {
   Select,
   SelectContent,
@@ -50,7 +50,7 @@ const HorariosSportclub = ({
   DIAS.forEach((d) => (porDia[d] = []));
   sedesBeneficio.forEach((s) =>
     s.clases.forEach((c) => {
-      if (porDia[c.dia]) porDia[c.dia].push({ sede: s.nombre, hora: c.hora, alquiler: !!s.alquiler });
+      if (porDia[c.dia]) porDia[c.dia].push({ sede: s.nombre, hora: c.hora, alquiler: claseTieneAlquiler(s, c) });
     }),
   );
   // Ordena por hora dentro de cada día
