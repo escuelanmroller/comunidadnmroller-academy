@@ -21,6 +21,7 @@ import NotFound from "./pages/NotFound.tsx";
 import TutorialesPatinaje from "./pages/TutorialesPatinaje.tsx";
 import PreguntasFrecuentes from "./pages/PreguntasFrecuentes.tsx";
 import RutaDeAprendizaje from "./pages/RutaDeAprendizaje.tsx";
+import RenovarAlquiler from "./pages/RenovarAlquiler.tsx";
 import PanelVentasLogin from "./pages/PanelVentasLogin.tsx";
 import PanelVentas from "./pages/PanelVentas.tsx";
 import PanelVentasConfiguracion from "./pages/PanelVentasConfiguracion.tsx";
@@ -56,6 +57,7 @@ const App = () => (
           <Route path="/tutoriales-de-patinaje" element={<TutorialesPatinaje />} />
           <Route path="/preguntas-frecuentes" element={<PreguntasFrecuentes />} />
           <Route path="/ruta-de-aprendizaje" element={<RutaDeAprendizaje />} />
+          <Route path="/renovar-alquiler" element={<RenovarAlquiler />} />
           <Route path="/panel-ventas/login" element={<PanelVentasLogin />} />
           <Route
             path="/panel-ventas"

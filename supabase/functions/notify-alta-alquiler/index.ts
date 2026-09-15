@@ -1,6 +1,8 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { createClient } from "npm:@supabase/supabase-js@2";
 import { z } from "npm:zod@3.23.8";
 import { notifySlack } from "../_shared/slack.ts";
+import { APPS_SCRIPT_URL } from "../_shared/alquilerAppsScript.ts";
 
 const schema = z.object({
   nombre: z.string().trim().min(1).max(120),
@@ -30,14 +32,14 @@ const schema = z.object({
     .optional()
     .nullable(),
   notas: z.string().trim().max(1000).optional().nullable(),
+  // Solo /renovar-alquiler (link que manda la asesora a quien ya pagó por fuera de la web).
+  origen: z.enum(["compra-web", "renovacion"]).optional().default("compra-web"),
+  comprobantePath: z.string().trim().max(500).optional().nullable(),
 });
 
-// Mismo Apps Script que ya usa el formulario de Tiiny (registro-alumnos-alquiler.tiiny.site)
-// desde mayo de 2026 — reutilizamos ese canal a la planilla "alquiler nm app NUEVO" en vez de
-// armar una integración nueva con Google Sheets desde cero. Es un Web App público
-// (ANYONE_ANONYMOUS), no expone nada que el propio formulario de Tiiny no exponga ya.
-const APPS_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbx_bRsm8Ct5JsOa0pq1J-eS_AjhAruTCbBprqbdi_ou3izKCXT-wckdRYVRDGu8wD9B/exec";
+// Mismo bucket que los comprobantes de la compra web (PagoConfirmado.tsx).
+const BUCKET_COMPROBANTES = "comprobantes-pago";
+const SIGNED_URL_TTL = 60 * 60 * 24 * 7;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -55,7 +57,19 @@ Deno.serve(async (req) => {
       nombre, email, telefono, dni, planLabel, planSlug,
       sedeNombre, turnoDia, turnoHora, fechas,
       talleCalzado, talleRopa, talleCasco, acompanante, notas,
+      origen, comprobantePath,
     } = parsed.data;
+    const esRenovacion = origen === "renovacion";
+
+    let comprobanteUrl: string | null = null;
+    if (comprobantePath) {
+      const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+      const { data: signed, error: signErr } = await admin.storage
+        .from(BUCKET_COMPROBANTES)
+        .createSignedUrl(comprobantePath, SIGNED_URL_TTL);
+      if (signErr) console.error("[alta-alquiler] signed url error", signErr);
+      comprobanteUrl = signed?.signedUrl ?? null;
+    }
 
     const horarioTexto = `${turnoDia} ${turnoHora}hs (turno fijo)`;
 
@@ -77,11 +91,13 @@ Deno.serve(async (req) => {
     // tanto, para no perder el dato en el medio. Sacar el respaldo de acá
     // una vez confirmado que la columna nueva funciona (ver CONTEXTO.md).
     const observacionesExtra = [
+      esRenovacion ? `RENOVACIÓN (pagó por fuera de la web${comprobantePath ? `, comprobante: ${comprobantePath}` : ""})` : null,
       acompananteTexto ? `Acompañante 2x1: ${acompananteTexto}` : null,
       notas?.trim() || null,
     ].filter(Boolean).join(" · ");
 
-    const packEtiquetado = planSlug === "clase-2x1" ? `${planLabel} · 2X1` : planLabel;
+    const packBase = planSlug === "clase-2x1" ? `${planLabel} · 2X1` : planLabel;
+    const packEtiquetado = esRenovacion ? `${packBase} · RENOVACIÓN` : packBase;
 
     const enviarFilaExcel = async (params: Record<string, string>) => {
       try {
@@ -133,7 +149,7 @@ Deno.serve(async (req) => {
 
     // --- Slack (canal nuevo, no bloqueante) ---
     const slackText = [
-      `*🛼 Alta de alumno · Clases + Alquiler${planSlug === "clase-2x1" ? " · 👥 2X1" : ""}*`,
+      `*${esRenovacion ? "🔁 Renovación de alquiler (link asesora)" : "🛼 Alta de alumno · Clases + Alquiler"}${planSlug === "clase-2x1" ? " · 👥 2X1" : ""}*`,
       ``,
       `*Nombre:* ${nombre}`,
       `*DNI:* ${dni}`,
@@ -148,6 +164,9 @@ Deno.serve(async (req) => {
       `*Talle casco:* ${talleCasco}`,
       acompananteTexto ? `*Acompañante 2x1:* ${acompananteTexto}` : null,
       notas?.trim() ? `*Notas:* ${notas.trim()}` : null,
+      comprobanteUrl
+        ? `*Comprobante:* <${comprobanteUrl}|Ver comprobante (7 días)>`
+        : comprobantePath ? `*Comprobante:* ${comprobantePath}` : null,
     ].filter(Boolean).join("\n");
 
     const slackOk = await notifySlack({

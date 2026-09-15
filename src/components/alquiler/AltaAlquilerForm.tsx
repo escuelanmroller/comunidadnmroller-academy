@@ -96,17 +96,26 @@ interface Props {
   /** "clase-unica" | "clase-2x1" | "pack-4-clases" */
   planSlug: string;
   planLabel: string;
+  /** "renovacion" = /renovar-alquiler: pagó por fuera de la web y sube comprobante acá mismo. */
+  origen?: "compra-web" | "renovacion";
+  /** Datos de su último alquiler (búsqueda por DNI). Montar con `key` si cambian. */
+  inicial?: { sedeId?: string; talleCalzado?: string; talleRopa?: string; sinRollers?: boolean };
 }
 
-const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }: Props) => {
+const MAX_MB_COMPROBANTE = 8;
+const ACCEPTED_COMPROBANTE = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+
+const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel, origen = "compra-web", inicial }: Props) => {
   const esPack4 = planSlug === "pack-4-clases";
   const es2x1 = planSlug === "clase-2x1";
+  const esRenovacion = origen === "renovacion";
 
-  const [sedeId, setSedeId] = useState("");
+  const [sedeId, setSedeId] = useState(inicial?.sedeId ?? "");
   const [turno, setTurno] = useState("");
-  const [sinRollers, setSinRollers] = useState(false);
-  const [talleCalzado, setTalleCalzado] = useState("");
-  const [talleRopa, setTalleRopa] = useState("");
+  const [sinRollers, setSinRollers] = useState(inicial?.sinRollers ?? false);
+  const [talleCalzado, setTalleCalzado] = useState(inicial?.talleCalzado ?? "");
+  const [talleRopa, setTalleRopa] = useState(inicial?.talleRopa ?? "");
+  const [comprobante, setComprobante] = useState<File | null>(null);
   const [compDatosPendientes, setCompDatosPendientes] = useState(false);
   const [compNombre, setCompNombre] = useState("");
   const [compApellido, setCompApellido] = useState("");
@@ -133,11 +142,19 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
     return proximasFechas(turnoElegido.dia, turnoElegido.hora, 4);
   }, [esPack4, turnoElegido]);
 
+  const comprobanteError = useMemo(() => {
+    if (!comprobante) return null;
+    if (!ACCEPTED_COMPROBANTE.includes(comprobante.type)) return "Formato no permitido (usá JPG, PNG, WEBP o PDF).";
+    if (comprobante.size > MAX_MB_COMPROBANTE * 1024 * 1024) return `El archivo supera los ${MAX_MB_COMPROBANTE}MB.`;
+    return null;
+  }, [comprobante]);
+
   const canSubmit =
     !!sedeId &&
     !!turno &&
     (sinRollers || talleCalzado.trim().length > 0) &&
     !!talleRopa &&
+    (!esRenovacion || (!!comprobante && !comprobanteError)) &&
     (!es2x1 ||
       compDatosPendientes ||
       (compNombre.trim() &&
@@ -164,6 +181,17 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
     }
     setEnviando(true);
     try {
+      let comprobantePath: string | null = null;
+      if (esRenovacion && comprobante) {
+        const ext = comprobante.name.split(".").pop() ?? "bin";
+        const safeName = nombre.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40);
+        comprobantePath = `renovacion-alquiler/${Date.now()}-${safeName}.${ext}`;
+        const { error: upErr } = await supabase.storage
+          .from("comprobantes-pago")
+          .upload(comprobantePath, comprobante, { contentType: comprobante.type, upsert: false });
+        if (upErr) throw upErr;
+      }
+
       const { error } = await supabase.functions.invoke("notify-alta-alquiler", {
         body: {
           nombre,
@@ -194,6 +222,7 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
                   talleCasco: CASCO_INCLUIDO,
                 },
           notas: notas.trim() || null,
+          ...(esRenovacion ? { origen: "renovacion", comprobantePath } : {}),
         },
       });
       if (error) throw error;
@@ -616,6 +645,21 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel }:
           placeholder="Opcional — experiencia previa, principiante, alguna lesión..."
         />
       </div>
+
+      {esRenovacion && (
+        <div className="space-y-1.5">
+          <Label htmlFor="alq-comprobante">Comprobante de pago *</Label>
+          <Input
+            id="alq-comprobante"
+            type="file"
+            accept=".jpg,.jpeg,.png,.webp,.pdf"
+            onChange={(e) => setComprobante(e.target.files?.[0] ?? null)}
+          />
+          <p className={`text-xs ${comprobanteError ? "text-primary" : "text-foreground/50"}`}>
+            {comprobanteError ?? `JPG, PNG, WEBP o PDF · máx. ${MAX_MB_COMPROBANTE}MB`}
+          </p>
+        </div>
+      )}
 
       <Button
         type="submit"

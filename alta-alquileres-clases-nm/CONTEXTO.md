@@ -189,3 +189,11 @@ Contenido que debería llevar cada email, según lo que dictó:
 
 1. **A quién aplica exactamente:** hoy se muestra para los 3 packs de Clases + Alquiler. Falta confirmar esto contra el pricing real de `PricingAlquilerSection.tsx`, que no modela exactamente estos 3 packs de la misma forma.
 2. **Corte / migración del Tiiny:** el formulario de Tiiny sigue activo y recibiendo alumnos reales todos los días. Gumercindo confirmó (12-sep-2026) que esto **no lo reemplaza todavía** — conviven. Falta definir hasta cuándo y en qué condición pasa a reemplazarlo del todo.
+
+## 15-sep-2026 — Link oculto `/renovar-alquiler` (quien ya pagó por fuera de la web)
+
+- Página sin menú y `noindex` que la asesora le manda a alumnos que vuelven a alquilar y ya pagaron con ella. Flujo: "¿ya alquilaste antes?" → si sí, busca por DNI y precarga nombre/email/WhatsApp/sede/talles de su último registro (máx. 2 intentos fallidos, después completa a mano) → datos de contacto → checkbox obligatorio "Ya pagué" → qué pagó (Clase Única / 2x1 / Pack 4) → el mismo `AltaAlquilerForm` + **comprobante obligatorio**.
+- Todo cae en la **misma planilla** y el **mismo canal de Slack** (`#alta-alquiler-alumnos`), con el pack etiquetado "· RENOVACIÓN" y link al comprobante (bucket `comprobantes-pago`, carpeta `renovacion-alquiler/`). No pasa por `comprobantes_pago` ni GetResponse/Make: no es un lead nuevo.
+- **Búsqueda por DNI:** Edge Function `buscar-alquiler-dni` → mismo Apps Script, acción nueva `accion=buscar`, protegida con clave compartida (secret `ALTA_ALQUILER_LOOKUP_TOKEN` en `bosutr` = constante `LOOKUP_TOKEN` del Apps Script). Código versionado en `apps-script-Codigo.gs` (sin la clave). Ese mismo código incluye el parche de "Talle casco" pendiente del 13-sep.
+- **Decisión consciente de Gumercindo:** la búsqueda devuelve datos personales con solo el DNI. El límite de 2 intentos es del lado del navegador (se saltea borrando datos del sitio) — riesgo aceptado por la escala del negocio. La clave impide consultar el Apps Script directo.
+- ⚠️ **Orden de deploy obligatorio:** 1) Apps Script nuevo + "Nueva versión"; 2) secret; 3) deploy de `buscar-alquiler-dni` y `notify-alta-alquiler`; 4) probar; 5) recién ahí build del sitio. Si `buscar-alquiler-dni` llama al Apps Script **viejo**, este ignora `accion=buscar` y **agrega una fila basura** a la planilla.
