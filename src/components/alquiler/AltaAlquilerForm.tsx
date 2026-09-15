@@ -75,6 +75,11 @@ const proximasFechas = (dia: string, hora: string, cantidad: number, anticipacio
   return fechas;
 };
 
+// Si la próxima vez que cae ese día/hora está a menos de `minHoras`, no da tiempo
+// a preparar el equipo. Mismo cálculo de fechas que proximasFechas, sin cantidad.
+const turnoConAnticipacion = (dia: string, hora: string, minHoras = 24): boolean =>
+  proximasFechas(dia, hora, 1, 0)[0].getTime() >= Date.now() + minHoras * 3600 * 1000;
+
 const formatFecha = (d: Date) => {
   const s = d.toLocaleDateString("es-AR", { weekday: "long", day: "2-digit", month: "2-digit" });
   return s.charAt(0).toUpperCase() + s.slice(1);
@@ -128,7 +133,10 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel, o
   const [enviado, setEnviado] = useState(false);
   const [enviando, setEnviando] = useState(false);
 
-  const turnosDisponibles = useMemo(() => turnosDeSede(sedeId), [sedeId]);
+  const turnosDisponibles = useMemo(
+    () => turnosDeSede(sedeId).filter((c) => turnoConAnticipacion(c.dia, c.hora)),
+    [sedeId],
+  );
   // Rosedal tiene calzado hasta el 45; el resto de las sedes con alquiler solo hasta el 42.
   const rangoCalzado = sedeId === "rosedal" ? { min: 34, max: 45 } : { min: 34, max: 42 };
   const turnoElegido = useMemo(() => {
@@ -171,6 +179,17 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel, o
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Revalida por si pasó tiempo entre elegir el turno y enviar — el desplegable ya
+    // lo saca de las opciones, esto es el resguardo para no perder la carrera contra el reloj.
+    if (turnoElegido && !turnoConAnticipacion(turnoElegido.dia, turnoElegido.hora)) {
+      toast({
+        title: "Ese turno ya no tiene 24hs de anticipación",
+        description: "Elegí otro día u horario para que nos dé tiempo a prepararte el equipo.",
+        variant: "destructive",
+      });
+      setTurno("");
+      return;
+    }
     if (!canSubmit || !turnoElegido) {
       toast({
         title: "Completá todos los campos obligatorios",
