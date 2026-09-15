@@ -1,5 +1,4 @@
 import { useState, useCallback } from "react";
-import { Link } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -30,7 +29,7 @@ interface Plan {
   highlighted?: boolean;
   badge?: string;
   planSlug: string;
-  sedesLink?: { label: string; href: string };
+  ctaLink?: { label: string; href: string };
 }
 
 const monthlyPlans: Plan[] = [
@@ -44,11 +43,11 @@ const monthlyPlans: Plan[] = [
       "1 Clase grupal para cualquier sede y horario",
       "Podés reprogramar hasta 2 veces sin cargo",
       "Acceso a todos los niveles y disciplinas",
-      "Incluye protecciones y casco (uso obligatorio) — solo en sedes con alquiler",
+      "Uso de protecciones y casco obligatorio",
       "Bonificación del 100% si decidís migrar a un plan en plazo de 7 días",
     ],
     planSlug: "clase-unica",
-    sedesLink: { label: "Ver sedes con alquiler", href: "/clases-de-rollers-mas-alquiler#sedes-alquiler" },
+    ctaLink: { label: "¿No tenés equipo? Comprá el tuyo", href: "https://www.flyfreeurban.com/protecciones/" },
   },
   {
     name: "Basic Fun",
@@ -207,13 +206,15 @@ const PricingSection = () => {
                 ))}
               </ul>
 
-              {plan.sedesLink && (
-                <Link
-                  to={plan.sedesLink.href}
+              {plan.ctaLink && (
+                <a
+                  href={plan.ctaLink.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className={`inline-block text-xs font-bold underline underline-offset-2 mb-6 -mt-4 ${plan.highlighted ? "text-primary-foreground" : "text-primary"}`}
                 >
-                  {plan.sedesLink.label} →
-                </Link>
+                  {plan.ctaLink.label} →
+                </a>
               )}
 
               <div className="space-y-3 border-t border-primary-foreground/10 pt-6">

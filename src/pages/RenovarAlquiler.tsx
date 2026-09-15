@@ -121,7 +121,7 @@ const RenovarAlquiler = () => {
   return (
     <>
       <Helmet>
-        <title>Renovar alquiler · NM Roller</title>
+        <title>Reservá tu turno · NM Roller</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
