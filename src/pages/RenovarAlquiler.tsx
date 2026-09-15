@@ -94,9 +94,11 @@ const RenovarAlquiler = () => {
     setEstado("buscando");
     setDni(dniBusqueda.trim());
     try {
-      const { data, error } = await supabase.functions.invoke("buscar-alquiler-dni", {
-        body: { dni: dniBusqueda.trim() },
-      });
+      // Nunca dejar a la persona trabada en "Buscando…": si no hay respuesta, completa a mano.
+      const { data, error } = await Promise.race([
+        supabase.functions.invoke("buscar-alquiler-dni", { body: { dni: dniBusqueda.trim() } }),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), 25000)),
+      ]);
       if (error || !data || "error" in data) throw error ?? new Error("lookup_failed");
       if (data.encontrado && data.datos) {
         precargar(data.datos as DatosPrevios);

@@ -27,13 +27,26 @@ Deno.serve(async (req) => {
     if (!token) return json({ error: "missing_secret" }, 500);
 
     const qs = new URLSearchParams({ accion: "buscar", dni, token });
-    const res = await fetch(`${APPS_SCRIPT_URL}?${qs.toString()}`, { method: "GET" });
-    const data = await res.json().catch(() => null);
-
-    if (!res.ok || !data || data.status !== "ok") {
-      console.error("[buscar-alquiler-dni] Apps Script respondió", res.status, data?.status);
-      return json({ error: "lookup_failed" }, 502);
+    // El script corre en ~1-2s, pero desde Supabase la respuesta de Google (tras el
+    // redirect a googleusercontent) a veces se cuelga 20-100s. Es solo lectura:
+    // cortamos rápido y reintentamos.
+    let data: { status?: string; encontrado?: boolean; datos?: unknown } | null = null;
+    for (let intento = 1; intento <= 3 && !data; intento++) {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 8000);
+      try {
+        const res = await fetch(`${APPS_SCRIPT_URL}?${qs.toString()}`, { signal: ctrl.signal });
+        const body = await res.json().catch(() => null);
+        if (res.ok && body?.status === "ok") data = body;
+        else console.error(`[buscar-alquiler-dni] intento ${intento}: HTTP ${res.status}`, body?.status);
+      } catch (e) {
+        console.warn(`[buscar-alquiler-dni] intento ${intento} sin respuesta`, (e as Error).name);
+      } finally {
+        clearTimeout(timer);
+      }
     }
+
+    if (!data) return json({ error: "lookup_failed" }, 502);
 
     return json({ encontrado: !!data.encontrado, datos: data.encontrado ? data.datos : null });
   } catch (e) {
