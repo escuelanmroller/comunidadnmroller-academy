@@ -145,9 +145,12 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel, o
     return { dia, hora, disciplina };
   }, [turno]);
 
+  // Siempre se calcula, no solo para Pack 4 — si hoy es martes y el turno es
+  // "Martes 18hs" pero esa hora ya pasó, la próxima cae recién la semana que
+  // viene: hay que mostrar la fecha real para que no se asuma que es hoy.
   const fechas = useMemo(() => {
-    if (!esPack4 || !turnoElegido) return [];
-    return proximasFechas(turnoElegido.dia, turnoElegido.hora, 4);
+    if (!turnoElegido) return [];
+    return proximasFechas(turnoElegido.dia, turnoElegido.hora, esPack4 ? 4 : 1);
   }, [esPack4, turnoElegido]);
 
   const comprobanteError = useMemo(() => {
@@ -323,9 +326,9 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel, o
           <p className="text-sm text-foreground/85 leading-relaxed">
             Este va a ser siempre tu horario para {esPack4 ? "tus 4 clases" : "tu clase"} — <strong>{sedeElegida}, {turnoElegido?.dia} a las {turnoElegido?.hora}hs</strong>, no rota semana a semana.
           </p>
-          {esPack4 && fechas.length > 0 && (
+          {fechas.length > 0 && (
             <p className="text-xs text-foreground/60 mt-2">
-              {fechas.map((f) => formatFecha(f)).join(" · ")}
+              {esPack4 ? "" : "Primera clase: "}{fechas.map((f) => formatFecha(f)).join(" · ")}
             </p>
           )}
         </div>
@@ -405,12 +408,17 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel, o
           </div>
         </div>
 
-        {esPack4 && fechas.length > 0 && (
-          <div className="border border-foreground/15 bg-muted p-3">
-            <p className="text-[11px] uppercase tracking-[0.1em] font-bold text-foreground/60 mb-1.5">Tus 4 fechas</p>
-            <p className="text-sm font-bold text-foreground">
-              {fechas.map((f) => formatFecha(f)).join(" · ")}
-            </p>
+        {fechas.length > 0 && (
+          <div className="flex items-start gap-2 border-2 border-primary/50 bg-primary/10 p-3">
+            <Clock className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.1em] font-black text-primary mb-1">
+                {esPack4 ? "Tus 4 fechas" : "Tu primera clase va a ser"}
+              </p>
+              <p className="text-sm font-bold text-foreground">
+                {fechas.map((f) => formatFecha(f)).join(" · ")}
+              </p>
+            </div>
           </div>
         )}
 
