@@ -147,6 +147,62 @@ Deno.serve(async (req) => {
       });
     }
 
+    // --- GetResponse (solo /renovar-alquiler) ---
+    // Quien compra por la web ya entra a esta lista antes, al subir el comprobante
+    // principal (notify-comprobante) — sumarlo de nuevo acá sería duplicado. Pero
+    // quien renueva por el link de la asesora puede no haber pasado nunca por la
+    // web, así que sin esto se quedaba afuera de la lista para siempre.
+    let getresponseOk: boolean | null = null;
+    if (esRenovacion) {
+      const GR_API_KEY = Deno.env.get("GETRESPONSE_API_KEY");
+      const GR_CAMPAIGN_ID = Deno.env.get("GETRESPONSE_CAMPAIGN_ID_COMPROBANTES_ALQUILER");
+      if (GR_API_KEY && GR_CAMPAIGN_ID) {
+        try {
+          const grHeaders = { "Content-Type": "application/json", "X-Auth-Token": `api-key ${GR_API_KEY}` };
+          // Tag real (no la "note" de texto libre) para poder filtrar/segmentar
+          // "renovación" del resto de la campaña dentro de GetResponse.
+          const TAG_NAME = "Renovación alquiler";
+          const buscar = await fetch(
+            `https://api.getresponse.com/v3/tags?query[name]=${encodeURIComponent(TAG_NAME)}`,
+            { headers: grHeaders },
+          );
+          const encontrados = buscar.ok ? await buscar.json().catch(() => []) : [];
+          let tagId = Array.isArray(encontrados)
+            ? encontrados.find((t: { name?: string }) => t.name === TAG_NAME)?.tagId
+            : undefined;
+          if (!tagId) {
+            const crear = await fetch("https://api.getresponse.com/v3/tags", {
+              method: "POST",
+              headers: grHeaders,
+              body: JSON.stringify({ name: TAG_NAME }),
+            });
+            const creado = await crear.json().catch(() => null);
+            tagId = creado?.tagId;
+            if (!crear.ok || !tagId) console.error("[alta-alquiler] no se pudo crear la tag GetResponse", creado);
+          }
+
+          const res = await fetch("https://api.getresponse.com/v3/contacts", {
+            method: "POST",
+            headers: grHeaders,
+            body: JSON.stringify({
+              email,
+              name: nombre,
+              campaign: { campaignId: GR_CAMPAIGN_ID },
+              ...(tagId ? { tags: [{ tagId }] } : {}),
+              note: `Renovación de alquiler (link asesora) · Pack: ${packEtiquetado} · Tel: ${telefono}`,
+            }),
+          });
+          getresponseOk = res.ok;
+          if (!res.ok) console.error("[alta-alquiler] GetResponse respondió", res.status, await res.text().catch(() => ""));
+        } catch (e) {
+          getresponseOk = false;
+          console.error("[alta-alquiler] GetResponse falló", e);
+        }
+      } else {
+        getresponseOk = false;
+      }
+    }
+
     // --- Slack (canal nuevo, no bloqueante) ---
     const slackText = [
       `*${esRenovacion ? "🔁 Renovación de alquiler (link asesora)" : "🛼 Alta de alumno · Clases + Alquiler"}${planSlug === "clase-2x1" ? " · 👥 2X1" : ""}*`,
@@ -176,7 +232,7 @@ Deno.serve(async (req) => {
     });
 
     return new Response(
-      JSON.stringify({ ok: true, slackOk, excelOk, excelOkAcompanante }),
+      JSON.stringify({ ok: true, slackOk, excelOk, excelOkAcompanante, getresponseOk }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (e) {
