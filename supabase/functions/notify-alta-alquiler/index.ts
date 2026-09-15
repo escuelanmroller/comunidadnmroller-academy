@@ -71,7 +71,10 @@ Deno.serve(async (req) => {
       comprobanteUrl = signed?.signedUrl ?? null;
     }
 
-    const horarioTexto = `${turnoDia} ${turnoHora}hs (turno fijo)`;
+    // Turno fijo semanal + la(s) fecha(s) real(es) que ya vienen calculadas del
+    // frontend — para que quien prepara el equipo no tenga que inferir a qué
+    // día del calendario corresponde "Martes 19hs".
+    const horarioTexto = `${turnoDia} ${turnoHora}hs (turno fijo)${fechas.length ? " — " + fechas.join(", ") : ""}`;
 
     // Texto del acompañante 2x1 — o bien viene completo (identidad + equipo),
     // o el comprador marcó que todavía no tiene los datos y los manda después
