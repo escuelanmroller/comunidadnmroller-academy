@@ -162,6 +162,12 @@ const MasterclassPage = () => {
   }
 
   const precios = precioVigente(mc);
+  // Calculado desde mc.earlyBirdHasta, no hardcodeado — así no queda vieja la
+  // fecha cuando cambie la edición de Masterclass en src/data/masterclasses.ts.
+  const earlyBirdHastaFecha = new Date(mc.earlyBirdHasta).toLocaleDateString("es-AR", {
+    day: "numeric",
+    month: "long",
+  });
 
   const scrollTo = (id: string) =>
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -456,7 +462,7 @@ const MasterclassPage = () => {
                 {precios.general}
               </p>
               <p className="text-xs text-muted-foreground mb-6">
-                {precios.esEarlyBird ? "Tarifa Early Bird" : "Precio general"}
+                {precios.esEarlyBird ? `Tarifa Early Bird · hasta el ${earlyBirdHastaFecha}` : "Precio general"}
               </p>
               <ul className="text-sm text-muted-foreground space-y-2 mb-8 flex-1">
                 <li className="flex gap-2">
