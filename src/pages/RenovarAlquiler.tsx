@@ -245,6 +245,12 @@ const RenovarAlquiler = () => {
             {/* Paso 3 — pago y plan */}
             {mostrarDatos && (
               <div className="space-y-4">
+                <p className="border border-primary/40 bg-primary/5 p-3.5 text-xs text-foreground/80 leading-relaxed flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                  Este formulario es solo para quien ya pagó su alquiler con la asesora. Si todavía no
+                  pagaste, hacelo primero y volvé después a completar esto — no podemos reservarte el
+                  turno sin el pago confirmado.
+                </p>
                 <div className="flex items-start gap-2">
                   <Checkbox
                     id="ren-ya-pague"
