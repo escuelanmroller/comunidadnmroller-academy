@@ -75,11 +75,6 @@ const proximasFechas = (dia: string, hora: string, cantidad: number, anticipacio
   return fechas;
 };
 
-// Si la próxima vez que cae ese día/hora está a menos de `minHoras`, no da tiempo
-// a preparar el equipo. Mismo cálculo de fechas que proximasFechas, sin cantidad.
-const turnoConAnticipacion = (dia: string, hora: string, minHoras = 24): boolean =>
-  proximasFechas(dia, hora, 1, 0)[0].getTime() >= Date.now() + minHoras * 3600 * 1000;
-
 const formatFecha = (d: Date) => {
   const s = d.toLocaleDateString("es-AR", { weekday: "long", day: "2-digit", month: "2-digit" });
   return s.charAt(0).toUpperCase() + s.slice(1);
@@ -133,10 +128,12 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel, o
   const [enviado, setEnviado] = useState(false);
   const [enviando, setEnviando] = useState(false);
 
-  const turnosDisponibles = useMemo(
-    () => turnosDeSede(sedeId).filter((c) => turnoConAnticipacion(c.dia, c.hora)),
-    [sedeId],
-  );
+  // Se muestran TODOS los turnos de la sede, incluido el de hoy aunque ya esté
+  // dentro de las 24hs — no se saca de la lista. Lo que cambia es la fecha real
+  // calculada más abajo (`fechas`), que respeta la anticipación y salta a la
+  // semana que viene sola; el aviso de `primeraClaseSemanaQueViene` deja explícito
+  // por qué no es la fecha más próxima que uno esperaría.
+  const turnosDisponibles = useMemo(() => turnosDeSede(sedeId), [sedeId]);
   // Rosedal tiene calzado hasta el 45; el resto de las sedes con alquiler solo hasta el 42.
   const rangoCalzado = sedeId === "rosedal" ? { min: 34, max: 45 } : { min: 34, max: 42 };
   const turnoElegido = useMemo(() => {
@@ -152,6 +149,17 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel, o
     if (!turnoElegido) return [];
     return proximasFechas(turnoElegido.dia, turnoElegido.hora, esPack4 ? 4 : 1);
   }, [esPack4, turnoElegido]);
+
+  // Si la ocurrencia más próxima de este turno (sin exigir anticipación) es
+  // antes que la primera fecha ya calculada arriba (que sí la exige), quiere
+  // decir que esa ocurrencia más próxima quedó descartada por las 24hs y la
+  // primera clase real se corrió a la semana siguiente — hay que decirlo explícito,
+  // no alcanza con que la fecha mostrada ya sea la correcta.
+  const primeraClaseSemanaQueViene = useMemo(() => {
+    if (!turnoElegido || fechas.length === 0) return false;
+    const masProxima = proximasFechas(turnoElegido.dia, turnoElegido.hora, 1, 0)[0];
+    return masProxima.getTime() < fechas[0].getTime();
+  }, [turnoElegido, fechas]);
 
   const comprobanteError = useMemo(() => {
     if (!comprobante) return null;
@@ -182,17 +190,6 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel, o
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Revalida por si pasó tiempo entre elegir el turno y enviar — el desplegable ya
-    // lo saca de las opciones, esto es el resguardo para no perder la carrera contra el reloj.
-    if (turnoElegido && !turnoConAnticipacion(turnoElegido.dia, turnoElegido.hora)) {
-      toast({
-        title: "Ese turno ya no tiene 24hs de anticipación",
-        description: "Elegí otro día u horario para que nos dé tiempo a prepararte el equipo.",
-        variant: "destructive",
-      });
-      setTurno("");
-      return;
-    }
     if (!canSubmit || !turnoElegido) {
       toast({
         title: "Completá todos los campos obligatorios",
@@ -418,6 +415,13 @@ const AltaAlquilerForm = ({ nombre, email, telefono, dni, planSlug, planLabel, o
               <p className="text-sm font-bold text-foreground">
                 {fechas.map((f) => formatFecha(f)).join(" · ")}
               </p>
+              {primeraClaseSemanaQueViene && (
+                <p className="text-xs text-foreground/70 mt-1.5 leading-relaxed">
+                  ⚠️ El turno de {turnoElegido!.dia} {turnoElegido!.hora}hs más próximo ya está dentro de
+                  las 24hs de anticipación — no llegamos a prepararte el equipo para esa. Por eso tu
+                  primera clase real es recién la semana que viene.
+                </p>
+              )}
             </div>
           </div>
         )}
