@@ -26,7 +26,7 @@ const paginas = [
   {
     ruta: "clases-de-rollers-mas-alquiler",
     title: "Clases de rollers + alquiler de equipo | NM Roller",
-    description: "No tenés rollers? Te los damos. Clases grupales en +8 sedes con todo el equipo incluido.",
+    description: "No tenés rollers? Te los damos. Clases grupales en +9 sedes con todo el equipo incluido.",
   },
   {
     ruta: "clase-gratis",

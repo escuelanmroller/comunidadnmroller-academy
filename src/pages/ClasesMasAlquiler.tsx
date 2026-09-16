@@ -106,7 +106,7 @@ const ClasesMasAlquiler = () => {
         />
         <meta
           property="og:description"
-          content="No tenés rollers? Te los damos. Clases grupales en +8 sedes con todo el equipo incluido."
+          content="No tenés rollers? Te los damos. Clases grupales en +9 sedes con todo el equipo incluido."
         />
         <meta property="og:type" content="website" />
       </Helmet>

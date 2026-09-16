@@ -186,6 +186,10 @@ export const sedes: Sede[] = [
     lat: -34.5816669,
     lng: -58.4441793,
     mapsUrl: "https://maps.app.goo.gl/kDamFzD1s24roMmm7",
+    alquiler: true,
+    // Alquiler solo Viernes 19h (reactivado 16-sep-2026) — no en el otro
+    // turno del viernes (20h Frenadas, disciplina especial) ni en Miércoles.
+    alquilerHorarios: [{ dia: "Viernes", hora: "19:00" }],
     clases: [
       { dia: "Miércoles", hora: "19:00", disciplina: NIVEL_UNIFICADO },
       { dia: "Viernes", hora: "19:00", disciplina: NIVEL_UNIFICADO },
