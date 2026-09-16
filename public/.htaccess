@@ -5,6 +5,20 @@
   RewriteEngine On
   RewriteBase /
 
+  # --- Vistas previas para WhatsApp/Facebook/Twitter/etc ---
+  # El sitio es una SPA: el título/descripción que arma React (react-helmet-async)
+  # nunca llega a estos bots, porque no ejecutan JavaScript — solo leen el HTML
+  # crudo que manda el server, que sin esto es siempre el mismo index.html genérico
+  # (la tarjeta de WhatsApp mostraba "Escuela #1 de Patinaje..." para cualquier
+  # página que se compartiera). Acá se les sirve, SOLO a ellos, un snapshot
+  # estático con el título/descripción/imagen reales de esa página — la gente
+  # real nunca ve estos archivos, sigue entrando a la SPA de siempre. Para sumar
+  # una página nueva: agregarla en scripts/generate-og-previews.mjs y correrlo
+  # de nuevo — no hace falta tocar esta regla.
+  RewriteCond %{HTTP_USER_AGENT} (facebookexternalhit|WhatsApp|Twitterbot|LinkedInBot|Slackbot|TelegramBot|Discordbot) [NC]
+  RewriteCond %{DOCUMENT_ROOT}/previews%{REQUEST_URI}.html -f
+  RewriteRule ^(.*)$ /previews/$1.html [L]
+
   # No tocar archivos reales (js, css, png, etc.)
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   # No tocar carpetas reales (ej: /lp del subdominio)

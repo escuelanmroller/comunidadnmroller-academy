@@ -627,3 +627,11 @@ Pendiente, todo registrado en `alta-alquileres-clases-nm/CONTEXTO.md`:
 - **Construido (código, sin deploy):** página `/renovar-alquiler`, búsqueda por DNI con precarga, comprobante obligatorio, mismo Excel y mismo Slack con etiqueta de renovación. Detalle y orden de deploy en `alta-alquileres-clases-nm/CONTEXTO.md`.
 - **Decisión de seguridad:** se avisó que buscar por DNI en un Apps Script público expone datos personales; Gumercindo eligió hacerlo igual con límite de 2 intentos. Se agregó por nuestra cuenta una clave compartida para que el Apps Script no responda búsquedas directas (la URL ya es pública en el Tiiny).
 - **Pendiente (manual, en este orden):** pegar `Código.gs` nuevo + "Nueva versión"; cargar secret `ALTA_ALQUILER_LOOKUP_TOKEN`; deployar `buscar-alquiler-dni` y `notify-alta-alquiler`; probar; recién ahí build a Hostinger. **Regla 11 de la bóveda: el frontend no sale a producción antes de eso.**
+
+## 2026-09-15 — Vista previa de WhatsApp: bug real en todas las páginas con título propio
+
+- **Detonante:** pedido puntual de título/imagen custom para `/renovar-alquiler` al compartirla por WhatsApp. Primera idea (página HTML estática con URL propia tipo `/renovar-alquiler-share.html`) se descartó — Gumercindo no quería un link "feo" distinto al real.
+- **Hallazgo mayor investigando la causa:** el bug no es de `/renovar-alquiler` — es de **toda** página que arma su título vía Helmet (`Masterclass`, `ClaseGratis`, `ClasesMasAlquiler`, `ExclusivoSociosSportclub`, `NewsletterDesdeCero`, `RutaDeAprendizaje`), desde que se armaron. WhatsApp no ejecuta JavaScript, así que nunca vio esos títulos — siempre mostró el genérico del Home. Confirmado en vivo con `curl -A "WhatsApp/..."`.
+- **Fix elegido (mismo URL, sin backend):** `.htaccess` detecta el User-Agent del bot y le sirve un snapshot estático de `public/previews/<ruta>.html` en vez de la SPA — la gente real no lo nota, sigue en la URL de siempre. Los snapshots se generan con `scripts/generate-og-previews.mjs` (una sola fuente de verdad, no tocar los `.html` a mano). Detalle completo en el error #31 del `CLAUDE.md`.
+- **Alcance:** Gumercindo eligió resolver las 7 páginas de una vez (no solo `/renovar-alquiler`) al enterarse de que el bug era más amplio.
+- **Pendiente:** subir el `dist/` nuevo a Hostinger y verificar en producción con el `curl` documentado en el CLAUDE.md.
