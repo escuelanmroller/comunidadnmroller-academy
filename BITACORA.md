@@ -628,6 +628,11 @@ Pendiente, todo registrado en `alta-alquileres-clases-nm/CONTEXTO.md`:
 - **Decisión de seguridad:** se avisó que buscar por DNI en un Apps Script público expone datos personales; Gumercindo eligió hacerlo igual con límite de 2 intentos. Se agregó por nuestra cuenta una clave compartida para que el Apps Script no responda búsquedas directas (la URL ya es pública en el Tiiny).
 - **Pendiente (manual, en este orden):** pegar `Código.gs` nuevo + "Nueva versión"; cargar secret `ALTA_ALQUILER_LOOKUP_TOKEN`; deployar `buscar-alquiler-dni` y `notify-alta-alquiler`; probar; recién ahí build a Hostinger. **Regla 11 de la bóveda: el frontend no sale a producción antes de eso.**
 
+## 2026-09-15 — Clase Única (Home): saca claim de "incluido" + CTA a Fly Free
+
+- A pedido de Gumercindo, en la card de Clase Única de `PricingSection.tsx` (Home): se saca la mención de que protecciones/casco vienen "incluidos" (ese beneficio depende de la sede, ver `sede.alquiler`) y se deja solo que el uso de protecciones es obligatorio. El link que antes llevaba a "Ver sedes con alquiler" pasa a ofrecer comprar el equipo propio en Fly Free (`https://www.flyfreeurban.com/protecciones/`, provisto por Gumercindo — nunca se inventa una URL).
+- Verificado en navegador y grepeando el bundle compilado que no quedó rastro del link/texto viejo.
+
 ## 2026-09-15 — Vista previa de WhatsApp: bug real en todas las páginas con título propio
 
 - **Detonante:** pedido puntual de título/imagen custom para `/renovar-alquiler` al compartirla por WhatsApp. Primera idea (página HTML estática con URL propia tipo `/renovar-alquiler-share.html`) se descartó — Gumercindo no quería un link "feo" distinto al real.
