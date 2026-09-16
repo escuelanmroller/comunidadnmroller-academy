@@ -252,9 +252,14 @@ const RenovarAlquiler = () => {
                     onCheckedChange={(v) => setYaPague(v === true)}
                     className="mt-0.5"
                   />
-                  <Label htmlFor="ren-ya-pague" className="text-sm leading-snug cursor-pointer">
-                    Ya pagué mi alquiler con mi asesora *
-                  </Label>
+                  <div>
+                    <Label htmlFor="ren-ya-pague" className="text-sm leading-snug cursor-pointer">
+                      Ya pagué mi alquiler *
+                    </Label>
+                    <p className="text-xs text-foreground/55 mt-0.5">
+                      Más adelante te vamos a pedir que subas el comprobante de pago.
+                    </p>
+                  </div>
                 </div>
 
                 {yaPague && (
