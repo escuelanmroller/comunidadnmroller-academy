@@ -32,6 +32,8 @@ import InstagramEmbed from "@/components/InstagramEmbed";
 import { getMasterclass, getProximaMasterclass, precioVigente } from "@/data/masterclasses";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import AvisoVolverDelPago from "@/components/AvisoVolverDelPago";
+import { esperarAvisoPago } from "@/lib/avisoPago";
 import fotoUbicacionPuertoMadero from "@/assets/masterclass-ubicacion-puerto-madero.jpg";
 
 // Marca aliada — asesoramiento y venta de equipo (protecciones obligatorias).
@@ -134,6 +136,7 @@ const MasterclassPage = () => {
   const mc = getMasterclass(slug);
   const [modalPase, setModalPase] = useState<'general' | 'alumnos-transferencia' | null>(null);
   const [loadingOnline, setLoadingOnline] = useState(false);
+  const [avisoPagoOpen, setAvisoPagoOpen] = useState(false);
   const [seguroOpen, setSeguroOpen] = useState(false);
 
   useEffect(() => {
@@ -174,10 +177,14 @@ const MasterclassPage = () => {
 
   const handleComprarOnline = async (planSlugOverride?: string) => {
     setLoadingOnline(true);
+    setAvisoPagoOpen(true);
     try {
-      const { data, error } = await supabase.functions.invoke("crear-preferencia-pago", {
-        body: { plan_slug: planSlugOverride ?? mc.slug, origen: "masterclass" },
-      });
+      const [{ data, error }] = await Promise.all([
+        supabase.functions.invoke("crear-preferencia-pago", {
+          body: { plan_slug: planSlugOverride ?? mc.slug, origen: "masterclass" },
+        }),
+        esperarAvisoPago(),
+      ]);
       if (error || !data?.init_point) throw error ?? new Error("Sin init_point");
       window.location.href = data.init_point;
     } catch (err) {
@@ -188,6 +195,7 @@ const MasterclassPage = () => {
         variant: "destructive",
       });
       setLoadingOnline(false);
+      setAvisoPagoOpen(false);
     }
   };
 
@@ -903,6 +911,7 @@ const MasterclassPage = () => {
         </DialogContent>
       </Dialog>
 
+      <AvisoVolverDelPago open={avisoPagoOpen} />
     </div>
   );
 };

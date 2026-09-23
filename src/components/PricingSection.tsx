@@ -14,6 +14,8 @@ import { guardarIntencionCompra } from "@/lib/intencionCompra";
 import { calendlyUrl } from "@/lib/calendly";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import AvisoVolverDelPago from "@/components/AvisoVolverDelPago";
+import { esperarAvisoPago } from "@/lib/avisoPago";
 
 type Period = "mensual" | "trimestral";
 
@@ -122,6 +124,7 @@ const PricingSection = () => {
   const [period, setPeriod] = useState<Period>("mensual");
   const [calendlyOpen, setCalendlyOpen] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [avisoPagoOpen, setAvisoPagoOpen] = useState(false);
   const { ref, isVisible } = useScrollAnimation();
 
   const plans = period === "mensual" ? monthlyPlans : quarterlyPlans;
@@ -129,10 +132,14 @@ const PricingSection = () => {
   const handleComprar = async (plan: Plan) => {
     guardarIntencionCompra({ plan: plan.planSlug, origen: "nm" });
     setLoadingPlan(plan.planSlug);
+    setAvisoPagoOpen(true);
     try {
-      const { data, error } = await supabase.functions.invoke("crear-preferencia-pago", {
-        body: { plan_slug: plan.planSlug, origen: "nm" },
-      });
+      const [{ data, error }] = await Promise.all([
+        supabase.functions.invoke("crear-preferencia-pago", {
+          body: { plan_slug: plan.planSlug, origen: "nm" },
+        }),
+        esperarAvisoPago(),
+      ]);
       if (error || !data?.init_point) throw error ?? new Error("Sin init_point");
       window.location.href = data.init_point;
     } catch (err) {
@@ -143,6 +150,7 @@ const PricingSection = () => {
         variant: "destructive",
       });
       setLoadingPlan(null);
+      setAvisoPagoOpen(false);
     }
   };
 
@@ -320,6 +328,7 @@ const PricingSection = () => {
           </div>
         </DialogContent>
       </Dialog>
+      <AvisoVolverDelPago open={avisoPagoOpen} />
     </section>
   );
 };

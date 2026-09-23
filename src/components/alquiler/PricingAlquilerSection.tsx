@@ -6,6 +6,8 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { guardarIntencionCompra } from "@/lib/intencionCompra";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import AvisoVolverDelPago from "@/components/AvisoVolverDelPago";
+import { esperarAvisoPago } from "@/lib/avisoPago";
 
 interface AlquilerPlan {
   name: string;
@@ -79,14 +81,19 @@ const plans: AlquilerPlan[] = [
 const PricingAlquilerSection = ({ onReserve }: { onReserve: () => void }) => {
   const { ref, isVisible } = useScrollAnimation();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [avisoPagoOpen, setAvisoPagoOpen] = useState(false);
 
   const handleComprar = async (plan: AlquilerPlan) => {
     guardarIntencionCompra({ plan: plan.planSlug, origen: "clases-alquiler" });
     setLoadingPlan(plan.planSlug);
+    setAvisoPagoOpen(true);
     try {
-      const { data, error } = await supabase.functions.invoke("crear-preferencia-pago", {
-        body: { plan_slug: plan.planSlug, origen: "clases-alquiler" },
-      });
+      const [{ data, error }] = await Promise.all([
+        supabase.functions.invoke("crear-preferencia-pago", {
+          body: { plan_slug: plan.planSlug, origen: "clases-alquiler" },
+        }),
+        esperarAvisoPago(),
+      ]);
       if (error || !data?.init_point) throw error ?? new Error("Sin init_point");
       window.location.href = data.init_point;
     } catch (err) {
@@ -97,6 +104,7 @@ const PricingAlquilerSection = ({ onReserve }: { onReserve: () => void }) => {
         variant: "destructive",
       });
       setLoadingPlan(null);
+      setAvisoPagoOpen(false);
     }
   };
 
@@ -209,6 +217,7 @@ const PricingAlquilerSection = ({ onReserve }: { onReserve: () => void }) => {
           ))}
         </div>
       </div>
+      <AvisoVolverDelPago open={avisoPagoOpen} />
     </section>
   );
 };
