@@ -657,3 +657,13 @@ Pendiente, todo registrado en `alta-alquileres-clases-nm/CONTEXTO.md`:
 - **Alcance:** los 3 lugares que redirigen a MP — `PricingSection.tsx` (Home), `PricingAlquilerSection.tsx` (Clases + Alquiler) y `Masterclass.tsx`. Si la función falla, el cartel se cierra y sale el toast de siempre (a los 3s, no al instante).
 - **Verificado en local:** flujo completo en las 3 páginas, ruta de error, 375px sin overflow horizontal, `tsc` limpio. Nota técnica: `AlertDialog` de Radix no se usaba antes en el sitio; en el dev server hubo que reiniciar Vite (dos copias de React por dep-optimization en caliente).
 - **Pendiente (siguiente paso acordado, después de subir esto):** medir cuántos pagos aprobados en `mercado_pago_pagos` (los registra el webhook) no tienen comprobante en `comprobantes_pago`, escribirles a los que ya se perdieron (con `payer_email`) y evaluar un mail/mensaje automático desde el webhook al aprobarse el pago con el link directo a subir el comprobante.
+
+## 2026-09-23 — Paso 1 medido: pagos aprobados de MP sin comprobante (consulta a `bosutr`)
+
+- **Método:** cruce de `mercado_pago_pagos` (webhook, `status=approved`, monto > 0) contra `comprobantes_pago` por `payment_id_intento` o email (+2 h). Consulta por el conector MCP de Supabase (cuenta `escuelanmroller`, ya autorizado esta sesión; la CLI de Supabase local está rota — firma inválida, `brew reinstall supabase`).
+- **Resultado:** 34 pagos aprobados reales desde el 28-ago; **25 sin comprobante (~$1.559.000 ARS)**. El webhook no trae nombre ni teléfono del pagador, solo el email.
+- **Hallazgo principal:** entre el 24-ago y el 12-sep hubo **19 días con 0 comprobantes subidos** y 21 pagos aprobados. Coincide con el bug del `id="comprobante"` duplicado (error #24 del CLAUDE.md), que entró en el commit `3843e74` del 26-ago y se corrigió recién el 12-sep (`dc2da76`): tocar el dropzone no abría el selector de archivos. Esos 21 no cerraron la app — **no podían subir**.
+- **Desde el arreglo (12-sep, ~12:20):** 13 pagos, 4 sin comprobante (~31%) — esa es la pérdida "de comportamiento" (no vuelven o no suben), sobre la que apunta el cartel `AvisoVolverDelPago`.
+- **Medios de pago de los 25:** 9 dinero en cuenta MP, 9 débito, 6 crédito, 1 cripto — no confirma por sí solo la hipótesis de "pagan desde la app".
+- **Advertencia:** "sin comprobante" ≠ "sin atender": la asesora pudo haberlos gestionado por WhatsApp. Verificar con ella antes de escribirles a todos.
+- **Pendiente:** confirmar con la asesora cuáles ya están atendidos; escribir a los que no; recién después evaluar el mail automático desde el webhook (paso 3).
