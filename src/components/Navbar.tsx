@@ -41,6 +41,8 @@ const Navbar = () => {
       // Wait for Home to mount, then scroll
       setTimeout(scroll, 100);
     } else {
+      // Ya en el Home: reflejar el anclaje en la URL (replace, sin ensuciar el historial) para que se pueda compartir el link a esa sección
+      navigate({ pathname: "/", hash: id === "top" ? "" : id }, { replace: true });
       scroll();
     }
   };
