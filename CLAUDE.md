@@ -378,6 +378,23 @@ Gumercindo va a pasar periódicamente un CSV (`día_semana, fecha, hora, sede, n
 - **Cómo verificar que quedó bien** (después de subir el `dist/` a Hostinger): `curl -s -A "WhatsApp/2.23.20.0" https://comunidadnmroller.com/<ruta> | grep og:title` debe devolver el título de esa página, no el del Home.
 - Ver bitácora, 15-sep-2026.
 
+### 32. Clave de Google Maps sin uso en `.env` expuesta en el bundle
+- **Caso real (27-sep-2026):** `VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY` y su tracking ID quedaron del setup original en Lovable. El sitio migró a Leaflet + OpenStreetMap/CARTO hace tiempo (confirmado por grep en todo `src/`), y ningún componente los usa. Expone una clave real y viva sin ningún propósito, solo con riesgo de que alguien la use contra la cuota de Google Cloud.
+- **Fix aplicado (27-sep-2026):** retirar ambas variables de `.env` y `.env.example`. La clave en sí (en Google Cloud) debe revocarla/borrarse el usuario desde su cuenta — eso no lo pueden hacer desde acá.
+- Ver BITACORA, 27-sep-2026.
+
+### 33. URLs del menú Home sin el anclaje en la barra de direcciones cuando se navega desde el Home
+- **Caso real (27-sep-2026):** clickear Sedes/Horarios/Planes en el menú estando ya en Home scrolleaba bien a la sección, pero la URL se quedaba como `https://comunidadnmroller.com/` sin el `#horarios`. Si copiabas la URL justo después del click para compartirla, no llevaba el anclaje. Desde otra página o con carga directa de URL con hash (`/#horarios`) sí funcionaba.
+- **Causa:** en `Navbar.tsx`, la función `goToSection` solo actualizaba la URL con `navigate()` cuando no estaba ya en el Home — si estaba en Home, solo scrolleaba.
+- **Fix aplicado (27-sep-2026):** usar `navigate({ pathname: "/", hash: id }, { replace: true })` cuando ya estás en Home, para que la URL se refleje sin acumular entradas en el historial (cada click no debe crear una entrada nueva de historial, para que "atrás" sea útil). Verificado en Playwright: las 4 páginas con mapa, y que `history.length` se mantiene estable en cada click.
+- Ver BITACORA, 27-sep-2026.
+
+### 34. Pin de Vicente López a ~1 km de la ubicación real (tierra adentro vs. costa)
+- **Caso real (27-sep-2026):** el pin caía entre las manzanas cerca de Av. del Libertador. El Playón Río Vicente López está sobre la costa, junto al Faro del Paseo de la Costa.
+- **Coordenadas viejas:** `-34.5230, -58.4762` (en `src/data/sedes.ts`). El pin estaba a 982 m del lugar correcto: ~800 m más al sur y ~600 m más al oeste.
+- **Fix aplicado (27-sep-2026):** cambiar a `-34.5158, -58.4699`, decodificadas del Plus Code que muestra Google Maps (`48Q3FGMJ+M2`, precisión ~14 m). Verificado en Playwright en las 4 páginas con mapa: el pin se dibuja en la coordenada nueva sin errores de JS.
+- Ver BITACORA, 27-sep-2026.
+
 ## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
