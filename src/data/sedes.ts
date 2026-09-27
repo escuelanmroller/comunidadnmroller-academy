@@ -126,8 +126,8 @@ export const sedes: Sede[] = [
     nombre: "Vicente López",
     direccion: "Playón Río Vicente López",
     area: "GBA Norte",
-    lat: -34.5230,
-    lng: -58.4762,
+    lat: -34.5158,
+    lng: -58.4699,
     mapsUrl: "https://maps.app.goo.gl/spbof6ndxcJgAog56",
     alquiler: true,
     // Alquiler solo sábado — el miércoles no ofrece el servicio.
