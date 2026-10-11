@@ -28,6 +28,9 @@ import PanelVentasConfiguracion from "./pages/PanelVentasConfiguracion.tsx";
 import RequireAuth from "./components/panel-ventas/RequireAuth.tsx";
 import WhatsappFloat from "./components/WhatsappFloat.tsx";
 import ScrollToTop from "./components/ScrollToTop.tsx";
+import Academy from "./pages/Academy.tsx";
+import AcademyInscribirse from "./pages/AcademyInscribirse.tsx";
+import AdminAcademy from "./pages/AdminAcademy.tsx";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +61,9 @@ const App = () => (
           <Route path="/preguntas-frecuentes" element={<PreguntasFrecuentes />} />
           <Route path="/ruta-de-aprendizaje" element={<RutaDeAprendizaje />} />
           <Route path="/renovar-alquiler" element={<RenovarAlquiler />} />
+          <Route path="/academy" element={<Academy />} />
+          <Route path="/academy/inscribirse" element={<AcademyInscribirse />} />
+          <Route path="/admin/academy" element={<AdminAcademy />} />
           <Route path="/panel-ventas/login" element={<PanelVentasLogin />} />
           <Route
             path="/panel-ventas"
