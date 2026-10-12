@@ -11,6 +11,7 @@ import {
   OPCIONES_UTILIDAD,
 } from "@/data/academy";
 import logo from "@/assets/Logo-NM-Rollers.png";
+import EcosistemaNM from "@/components/academy/EcosistemaNM";
 
 type Campo = {
   key: string;
@@ -200,20 +201,23 @@ export default function AcademyInscribirse() {
 
   if (enviado) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-background px-4 py-8 text-foreground">
-        <div className="w-full max-w-xl rounded-3xl border border-border bg-card p-8 text-center">
-          <CheckCircle2 className="mx-auto mb-5 h-14 w-14 text-emerald-400" />
-          <h1 className="mb-3 text-xl font-extrabold sm:text-2xl">¡Inscripción enviada!</h1>
-          <p className="mb-6 text-sm text-muted-foreground">
-            Gracias por tu interés en NM Academy. Nico se va a poner en contacto con vos por WhatsApp para definir tu
-            programa.
-          </p>
-          <button
-            onClick={() => navigate("/academy")}
-            className="h-12 w-full rounded-full bg-primary text-sm font-extrabold uppercase tracking-widest text-primary-foreground hover:bg-primary/90"
-          >
-            Volver al inicio
-          </button>
+      <main className="min-h-screen bg-background px-4 py-8 text-foreground">
+        <div className="mx-auto w-full max-w-3xl space-y-10">
+          <div className="mx-auto w-full max-w-xl rounded-3xl border border-border bg-card p-8 text-center">
+            <CheckCircle2 className="mx-auto mb-5 h-14 w-14 text-emerald-400" />
+            <h1 className="mb-3 text-xl font-extrabold sm:text-2xl">¡Inscripción enviada!</h1>
+            <p className="mb-6 text-sm text-muted-foreground">
+              Gracias por tu interés en NM Academy. Nico se va a poner en contacto con vos por WhatsApp para definir tu
+              programa.
+            </p>
+            <button
+              onClick={() => navigate("/academy")}
+              className="h-12 w-full rounded-full bg-primary text-sm font-extrabold uppercase tracking-widest text-primary-foreground hover:bg-primary/90"
+            >
+              Volver al inicio
+            </button>
+          </div>
+          <EcosistemaNM />
         </div>
       </main>
     );
