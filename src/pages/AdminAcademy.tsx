@@ -6,6 +6,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { ETIQUETAS_RESPUESTAS } from "@/data/academy";
+import PreguntasEditor from "@/components/academy/PreguntasEditor";
 import logo from "@/assets/Logo-NM-Rollers.png";
 
 type Instructor = Database["public"]["Tables"]["academy_instructores"]["Row"];
@@ -45,6 +46,8 @@ export default function AdminAcademy() {
   const [filtroTier, setFiltroTier] = useState("");
   const [busqueda, setBusqueda] = useState("");
   const [abiertoId, setAbiertoId] = useState<string | null>(null);
+  const [vista, setVista] = useState<"candidatos" | "preguntas">("candidatos");
+  const [etiquetasExtra, setEtiquetasExtra] = useState<Record<string, string>>({});
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -60,6 +63,14 @@ export default function AdminAcademy() {
   useEffect(() => {
     cargar();
   }, [cargar]);
+
+  // Textos actuales de las preguntas (incluye las agregadas desde el panel) para mostrar la ficha.
+  useEffect(() => {
+    supabase
+      .from("academy_preguntas")
+      .select("clave, etiqueta")
+      .then(({ data }) => setEtiquetasExtra(Object.fromEntries((data ?? []).map((d) => [d.clave, d.etiqueta]))));
+  }, [vista]);
 
   const actualizar = async (id: string, cambios: Partial<Pick<Instructor, "estado" | "tier" | "notas_internas">>) => {
     setInstructores((prev) => prev.map((i) => (i.id === id ? { ...i, ...cambios } : i)));
@@ -130,6 +141,18 @@ export default function AdminAcademy() {
           </button>
         </header>
 
+        <div className="mb-4 flex gap-2">
+          <button onClick={() => setVista("candidatos")} className={pill(vista === "candidatos")}>
+            Candidatos
+          </button>
+          <button onClick={() => setVista("preguntas")} className={pill(vista === "preguntas")}>
+            Preguntas del formulario
+          </button>
+        </div>
+
+        {vista === "preguntas" && <PreguntasEditor />}
+
+        <div className={vista === "candidatos" ? "" : "hidden"}>
         <section className="mb-4 rounded-2xl border border-border bg-card p-4">
           <div className="mb-4 flex flex-wrap gap-2">
             <button onClick={() => setFiltroEstado("")} className={pill(filtroEstado === "")}>
@@ -256,6 +279,7 @@ export default function AdminAcademy() {
             </div>
           )}
         </section>
+        </div>
       </div>
 
       <Dialog open={!!abierto} onOpenChange={(o) => !o && setAbiertoId(null)}>
@@ -302,7 +326,7 @@ export default function AdminAcademy() {
                   <div className="space-y-4">
                     {respuestasOrdenadas.map((k) => (
                       <div key={k}>
-                        <p className="text-xs text-muted-foreground">{ETIQUETAS_RESPUESTAS[k] ?? k}</p>
+                        <p className="text-xs text-muted-foreground">{etiquetasExtra[k] ?? ETIQUETAS_RESPUESTAS[k] ?? k}</p>
                         <p className="mt-0.5 whitespace-pre-wrap text-sm">{respuestas[k]}</p>
                       </div>
                     ))}
