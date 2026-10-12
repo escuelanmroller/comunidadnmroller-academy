@@ -1,370 +1,375 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Loader2, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  MoreVertical,
-  Filter,
-  Download,
-  MessageCircle,
-  Eye,
-  ChevronDown,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+import type { Database } from "@/integrations/supabase/types";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { toast } from "@/hooks/use-toast";
+import { ETIQUETAS_RESPUESTAS } from "@/data/academy";
+import logo from "@/assets/Logo-NM-Rollers.png";
 
-type Instructor = {
-  id: string;
-  created_at: string;
-  nombre_apellido: string;
-  email: string;
-  whatsapp: string;
-  pais_ciudad: string;
-  edad: number | null;
-  anos_patinando: string;
-  estado: "nuevo" | "contactado" | "seleccionado" | "rechazado";
-  tier: "starter" | "vip" | "elite" | null;
-  respuestas: any;
-  notas_internas: string | null;
+type Instructor = Database["public"]["Tables"]["academy_instructores"]["Row"];
+
+const ESTADOS = [
+  { id: "nuevo", label: "Nuevo", color: "text-foreground" },
+  { id: "contactado", label: "Contactado", color: "text-amber-300" },
+  { id: "seleccionado", label: "Seleccionado", color: "text-emerald-400" },
+  { id: "rechazado", label: "Rechazado", color: "text-red-400" },
+] as const;
+
+const TIERS = [
+  { id: "starter", label: "Starter" },
+  { id: "vip", label: "VIP" },
+  { id: "elite", label: "Elite" },
+] as const;
+
+const selectCls =
+  "h-9 rounded-full border border-border bg-background px-3 text-xs font-semibold focus:border-primary focus:outline-none";
+
+const fecha = (iso: string) => new Date(iso).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" });
+
+const colorEstado = (estado: string) => ESTADOS.find((e) => e.id === estado)?.color ?? "text-foreground";
+
+const linkWhatsapp = (whatsapp: string | null, nombre: string) => {
+  const digits = (whatsapp ?? "").replace(/\D/g, "");
+  if (!digits) return null;
+  const texto = `Hola ${nombre.trim().split(" ")[0]}, te escribo desde NM Academy...`;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(texto)}`;
 };
 
 export default function AdminAcademy() {
+  const navigate = useNavigate();
   const [instructores, setInstructores] = useState<Instructor[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filtroEstado, setFiltroEstado] = useState<string>("");
-  const [filtroTier, setFiltroTier] = useState<string>("");
-  const [filtroPais, setFiltroPais] = useState<string>("");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [showDetails, setShowDetails] = useState<string | null>(null);
+  const [filtroEstado, setFiltroEstado] = useState("");
+  const [filtroTier, setFiltroTier] = useState("");
+  const [busqueda, setBusqueda] = useState("");
+  const [abiertoId, setAbiertoId] = useState<string | null>(null);
 
-  // Cargar datos
-  useEffect(() => {
-    loadInstructores();
+  const cargar = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("academy_instructores")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) toast({ title: "No pudimos cargar los candidatos", description: error.message, variant: "destructive" });
+    setInstructores(data ?? []);
+    setLoading(false);
   }, []);
 
-  const loadInstructores = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("academy_instructores")
-        .select("*")
-        .order("created_at", { ascending: false });
+  useEffect(() => {
+    cargar();
+  }, [cargar]);
 
-      if (error) throw error;
-      setInstructores(data || []);
-    } catch (err: any) {
-      console.error("Error cargando instructores:", err);
-    } finally {
-      setLoading(false);
+  const actualizar = async (id: string, cambios: Partial<Pick<Instructor, "estado" | "tier" | "notas_internas">>) => {
+    setInstructores((prev) => prev.map((i) => (i.id === id ? { ...i, ...cambios } : i)));
+    const { error } = await supabase.from("academy_instructores").update(cambios).eq("id", id);
+    if (error) {
+      toast({ title: "No se pudo guardar el cambio", description: error.message, variant: "destructive" });
+      cargar();
     }
   };
 
-  // Filtrar
-  const filtered = instructores.filter((i) => {
-    if (filtroEstado && i.estado !== filtroEstado) return false;
-    if (filtroTier && i.tier !== filtroTier) return false;
-    if (filtroPais && !i.pais_ciudad?.includes(filtroPais)) return false;
-    return true;
-  });
+  const conteo = useMemo(() => {
+    const c: Record<string, number> = {};
+    instructores.forEach((i) => {
+      c[i.estado] = (c[i.estado] ?? 0) + 1;
+    });
+    return c;
+  }, [instructores]);
 
-  // Actualizar estado
-  const updateEstado = async (id: string, nuevoEstado: string) => {
-    try {
-      const { error } = await supabase
-        .from("academy_instructores")
-        .update({ estado: nuevoEstado })
-        .eq("id", id);
+  const filtrados = useMemo(() => {
+    const q = busqueda.trim().toLowerCase();
+    return instructores.filter((i) => {
+      if (filtroEstado && i.estado !== filtroEstado) return false;
+      if (filtroTier && i.tier !== filtroTier) return false;
+      if (q && !`${i.nombre_apellido} ${i.email} ${i.pais_ciudad ?? ""}`.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [instructores, filtroEstado, filtroTier, busqueda]);
 
-      if (error) throw error;
-      loadInstructores();
-    } catch (err) {
-      console.error("Error actualizando:", err);
-    }
+  const abierto = instructores.find((i) => i.id === abiertoId) ?? null;
+  const respuestas = (abierto?.respuestas ?? {}) as Record<string, string>;
+  const respuestasOrdenadas = abierto
+    ? [
+        ...Object.keys(ETIQUETAS_RESPUESTAS).filter((k) => respuestas[k]),
+        ...Object.keys(respuestas).filter((k) => k !== "instagram" && !(k in ETIQUETAS_RESPUESTAS) && respuestas[k]),
+      ]
+    : [];
+
+  const salir = async () => {
+    await supabase.auth.signOut();
+    navigate("/panel-ventas/login", { replace: true });
   };
 
-  // Actualizar tier
-  const updateTier = async (id: string, nuevoTier: string) => {
-    try {
-      const { error } = await supabase
-        .from("academy_instructores")
-        .update({ tier: nuevoTier || null })
-        .eq("id", id);
-
-      if (error) throw error;
-      loadInstructores();
-    } catch (err) {
-      console.error("Error actualizando:", err);
-    }
-  };
-
-  const handleWhatsApp = (whatsapp: string, nombre: string) => {
-    const mensaje = `Hola ${nombre.split(" ")[0]}, te escribo desde NM Academy...`;
-    const url = `https://wa.me/${whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(mensaje)}`;
-    window.open(url, "_blank");
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <p>Cargando...</p>
-      </div>
-    );
-  }
+  const pill = (activo: boolean) =>
+    `rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${
+      activo
+        ? "bg-primary text-primary-foreground"
+        : "border border-border bg-card text-muted-foreground hover:text-foreground"
+    }`;
 
   return (
-    <div className="min-h-screen bg-black text-white p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">NM Academy - Panel</h1>
-          <div className="text-sm text-gray-400">
-            {filtered.length} instructores
+    <main className="min-h-screen bg-background text-foreground">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+        <header className="mb-6 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <img src={logo} alt="NM Roller" className="h-11 w-11 rounded-full object-contain" />
+            <div>
+              <h1 className="text-xl font-extrabold leading-tight sm:text-2xl">NM Academy · Panel</h1>
+              <p className="text-xs text-muted-foreground">
+                {filtrados.length} de {instructores.length} candidatos
+              </p>
+            </div>
           </div>
-        </div>
+          <button
+            onClick={salir}
+            className="rounded-full border border-border px-4 py-2 text-xs font-bold uppercase tracking-wider hover:bg-card"
+          >
+            Salir
+          </button>
+        </header>
 
-        {/* Filtros */}
-        <div className="grid sm:grid-cols-4 gap-4 mb-6 bg-gray-800/30 p-4 rounded-lg border border-gray-700">
-          <div>
-            <label className="text-xs font-semibold text-gray-400 mb-2 block">
-              Estado
-            </label>
-            <select
-              value={filtroEstado}
-              onChange={(e) => setFiltroEstado(e.target.value)}
-              className="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm"
-            >
-              <option value="">Todos</option>
-              <option value="nuevo">Nuevo</option>
-              <option value="contactado">Contactado</option>
-              <option value="seleccionado">Seleccionado</option>
-              <option value="rechazado">Rechazado</option>
-            </select>
+        <section className="mb-4 rounded-2xl border border-border bg-card p-4">
+          <div className="mb-4 flex flex-wrap gap-2">
+            <button onClick={() => setFiltroEstado("")} className={pill(filtroEstado === "")}>
+              Todos · {instructores.length}
+            </button>
+            {ESTADOS.map((e) => (
+              <button key={e.id} onClick={() => setFiltroEstado(e.id)} className={pill(filtroEstado === e.id)}>
+                {e.label} · {conteo[e.id] ?? 0}
+              </button>
+            ))}
           </div>
-
-          <div>
-            <label className="text-xs font-semibold text-gray-400 mb-2 block">
-              Tier
-            </label>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <input
+              type="search"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              placeholder="Buscar por nombre, email o país"
+              className="h-11 flex-1 rounded-xl border border-border bg-background px-4 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+            />
             <select
               value={filtroTier}
               onChange={(e) => setFiltroTier(e.target.value)}
-              className="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm"
+              aria-label="Filtrar por tier"
+              className="h-11 rounded-xl border border-border bg-background px-4 text-sm focus:border-primary focus:outline-none"
             >
-              <option value="">Todos</option>
-              <option value="starter">Starter</option>
-              <option value="vip">VIP</option>
-              <option value="elite">Elite</option>
+              <option value="">Todos los tiers</option>
+              {TIERS.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.label}
+                </option>
+              ))}
             </select>
           </div>
+        </section>
 
-          <div>
-            <label className="text-xs font-semibold text-gray-400 mb-2 block">
-              País
-            </label>
-            <input
-              type="text"
-              value={filtroPais}
-              onChange={(e) => setFiltroPais(e.target.value)}
-              placeholder="Ej: Argentina"
-              className="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm"
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-gray-400 mb-2 block">
-              Acciones
-            </label>
-            <Button
-              onClick={loadInstructores}
-              className="w-full bg-gray-700 hover:bg-gray-600 text-sm"
-            >
-              Recargar
-            </Button>
-          </div>
-        </div>
-
-        {/* Tabla */}
-        <div className="overflow-x-auto border border-gray-700 rounded-lg">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-800/50 border-b border-gray-700">
-              <tr>
-                <th className="px-4 py-3 text-left font-semibold">Nombre</th>
-                <th className="px-4 py-3 text-left font-semibold">Email</th>
-                <th className="px-4 py-3 text-left font-semibold">País</th>
-                <th className="px-4 py-3 text-left font-semibold">Estado</th>
-                <th className="px-4 py-3 text-left font-semibold">Tier</th>
-                <th className="px-4 py-3 text-left font-semibold">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-700">
-              {filtered.map((instructor) => (
-                <tr key={instructor.id} className="hover:bg-gray-800/30">
-                  <td className="px-4 py-3 font-semibold">
-                    {instructor.nombre_apellido}
-                  </td>
-                  <td className="px-4 py-3 text-gray-400 text-xs">
-                    {instructor.email}
-                  </td>
-                  <td className="px-4 py-3 text-gray-400 text-xs">
-                    {instructor.pais_ciudad}
-                  </td>
-                  <td className="px-4 py-3">
-                    <select
-                      value={instructor.estado}
-                      onChange={(e) =>
-                        updateEstado(instructor.id, e.target.value)
-                      }
-                      className="bg-gray-900 border border-gray-600 rounded px-2 py-1 text-xs"
-                    >
-                      <option value="nuevo">Nuevo</option>
-                      <option value="contactado">Contactado</option>
-                      <option value="seleccionado">Seleccionado</option>
-                      <option value="rechazado">Rechazado</option>
-                    </select>
-                  </td>
-                  <td className="px-4 py-3">
-                    <select
-                      value={instructor.tier || ""}
-                      onChange={(e) =>
-                        updateTier(instructor.id, e.target.value)
-                      }
-                      className="bg-gray-900 border border-gray-600 rounded px-2 py-1 text-xs"
-                    >
-                      <option value="">Sin tier</option>
-                      <option value="starter">Starter</option>
-                      <option value="vip">VIP</option>
-                      <option value="elite">Elite</option>
-                    </select>
-                  </td>
-                  <td className="px-4 py-3 flex gap-2">
-                    <button
-                      onClick={() =>
-                        handleWhatsApp(
-                          instructor.whatsapp,
-                          instructor.nombre_apellido
-                        )
-                      }
-                      className="p-2 hover:bg-green-500/20 rounded transition-colors"
-                      title="WhatsApp"
-                    >
-                      <MessageCircle className="w-4 h-4 text-green-500" />
-                    </button>
-                    <button
-                      onClick={() =>
-                        setShowDetails(
-                          showDetails === instructor.id ? null : instructor.id
-                        )
-                      }
-                      className="p-2 hover:bg-blue-500/20 rounded transition-colors"
-                      title="Ver detalles"
-                    >
-                      <Eye className="w-4 h-4 text-blue-500" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Detalles expandibles */}
-        {showDetails && (
-          <div className="mt-6 bg-gray-800/30 border border-gray-700 rounded-lg p-6">
-            {instructores
-              .filter((i) => i.id === showDetails)
-              .map((instructor) => (
-                <div key={instructor.id}>
-                  <h2 className="text-xl font-bold mb-4">
-                    {instructor.nombre_apellido}
-                  </h2>
-
-                  <div className="grid sm:grid-cols-2 gap-6">
-                    {/* Datos básicos */}
-                    <div>
-                      <h3 className="font-semibold text-red-500 mb-3">
-                        Datos Básicos
-                      </h3>
-                      <div className="space-y-2 text-sm">
-                        <p>
-                          <span className="text-gray-400">Email:</span>{" "}
-                          {instructor.email}
-                        </p>
-                        <p>
-                          <span className="text-gray-400">WhatsApp:</span>{" "}
-                          {instructor.whatsapp}
-                        </p>
-                        <p>
-                          <span className="text-gray-400">Edad:</span>{" "}
-                          {instructor.edad || "N/A"}
-                        </p>
-                        <p>
-                          <span className="text-gray-400">Años patinando:</span>{" "}
-                          {instructor.anos_patinando}
-                        </p>
-                        <p>
-                          <span className="text-gray-400">País:</span>{" "}
-                          {instructor.pais_ciudad}
-                        </p>
-                        <p>
-                          <span className="text-gray-400">Instagram:</span>{" "}
-                          {instructor.respuestas?.instagram || "N/A"}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Respuestas */}
-                    <div>
-                      <h3 className="font-semibold text-red-500 mb-3">
-                        Respuestas
-                      </h3>
-                      <div className="space-y-3 text-sm">
-                        <div>
-                          <p className="text-gray-400 font-semibold">
-                            Motivación:
-                          </p>
-                          <p className="text-gray-300">
-                            {instructor.respuestas?.motivacion}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-gray-400 font-semibold">Nivel:</p>
-                          <p className="text-gray-300">
-                            {instructor.respuestas?.nivel}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-gray-400 font-semibold">
-                            Presupuesto:
-                          </p>
-                          <p className="text-gray-300">
-                            {instructor.respuestas?.presupuesto}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-4">
-                    <label className="block text-sm font-semibold mb-2">
-                      Notas internas:
-                    </label>
-                    <textarea
-                      defaultValue={instructor.notas_internas || ""}
-                      onBlur={(e) => {
-                        if (e.target.value !== instructor.notas_internas) {
-                          supabase
-                            .from("academy_instructores")
-                            .update({ notas_internas: e.target.value })
-                            .eq("id", instructor.id)
-                            .then(() => loadInstructores());
-                        }
-                      }}
-                      className="w-full bg-gray-900 border border-gray-600 rounded px-4 py-2 text-sm text-white"
-                      rows={3}
-                    />
-                  </div>
-                </div>
-              ))}
-          </div>
-        )}
+        <section className="overflow-hidden rounded-2xl border border-border bg-card">
+          {loading ? (
+            <div className="flex items-center justify-center gap-2 p-10 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" /> Cargando candidatos...
+            </div>
+          ) : filtrados.length === 0 ? (
+            <p className="p-10 text-center text-sm text-muted-foreground">
+              No hay candidatos para mostrar. Si esperabas ver la lista completa, revisá que hayas entrado con un
+              usuario administrador.
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
+                    <th className="px-4 py-3 font-semibold">Nombre</th>
+                    <th className="hidden px-4 py-3 font-semibold md:table-cell">País</th>
+                    <th className="hidden px-4 py-3 font-semibold lg:table-cell">Inscripto</th>
+                    <th className="px-4 py-3 font-semibold">Estado</th>
+                    <th className="px-4 py-3 font-semibold">Tier</th>
+                    <th className="px-4 py-3" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtrados.map((i) => {
+                    const wa = linkWhatsapp(i.whatsapp, i.nombre_apellido);
+                    return (
+                      <tr key={i.id} className="border-t border-border hover:bg-white/[0.03]">
+                        <td className="px-4 py-3">
+                          <p className="font-bold">{i.nombre_apellido}</p>
+                          <p className="text-xs text-muted-foreground">{i.email}</p>
+                        </td>
+                        <td className="hidden max-w-[220px] px-4 py-3 text-muted-foreground md:table-cell">
+                          {i.pais_ciudad}
+                        </td>
+                        <td className="hidden px-4 py-3 text-muted-foreground lg:table-cell">{fecha(i.created_at)}</td>
+                        <td className="px-4 py-3">
+                          <select
+                            value={i.estado}
+                            onChange={(e) => actualizar(i.id, { estado: e.target.value })}
+                            aria-label={`Estado de ${i.nombre_apellido}`}
+                            className={`${selectCls} ${colorEstado(i.estado)}`}
+                          >
+                            {ESTADOS.map((e) => (
+                              <option key={e.id} value={e.id}>
+                                {e.label}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="px-4 py-3">
+                          <select
+                            value={i.tier ?? ""}
+                            onChange={(e) => actualizar(i.id, { tier: e.target.value || null })}
+                            aria-label={`Tier de ${i.nombre_apellido}`}
+                            className={selectCls}
+                          >
+                            <option value="">Sin tier</option>
+                            {TIERS.map((t) => (
+                              <option key={t.id} value={t.id}>
+                                {t.label}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-3 text-right">
+                          {wa && (
+                            <a
+                              href={wa}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="mr-4 font-bold text-emerald-400 hover:underline"
+                            >
+                              WhatsApp
+                            </a>
+                          )}
+                          <button
+                            onClick={() => setAbiertoId(i.id)}
+                            className="font-bold text-emerald-400 hover:underline"
+                          >
+                            Ficha
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
       </div>
-    </div>
+
+      <Dialog open={!!abierto} onOpenChange={(o) => !o && setAbiertoId(null)}>
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto rounded-2xl border-border bg-card p-6 sm:rounded-2xl [&>button]:hidden">
+          {abierto && (
+            <>
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <DialogTitle className="text-xl font-extrabold leading-tight">{abierto.nombre_apellido}</DialogTitle>
+                  <DialogDescription className="mt-1 text-xs">
+                    Inscripto el {fecha(abierto.created_at)}
+                  </DialogDescription>
+                </div>
+                <DialogClose className="shrink-0 rounded-full border border-border px-4 py-2 text-xs font-bold uppercase tracking-wider hover:bg-background">
+                  Cerrar
+                </DialogClose>
+              </div>
+
+              <div className="rounded-xl border border-border bg-background/50 p-4">
+                <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-primary">Datos</h3>
+                <dl className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
+                  {[
+                    ["Email", abierto.email],
+                    ["WhatsApp", abierto.whatsapp],
+                    ["País / ciudad", abierto.pais_ciudad],
+                    ["Edad", abierto.edad],
+                    ["Tiempo patinando", abierto.anos_patinando],
+                    ["Instagram", abierto.instagram],
+                    ["Cómo nos conoció", abierto.como_me_conociste],
+                  ].map(([k, v]) => (
+                    <div key={k as string} className="min-w-0">
+                      <dt className="text-xs text-muted-foreground">{k}</dt>
+                      <dd className="break-words font-medium">{v || "—"}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+
+              <div className="rounded-xl border border-border bg-background/50 p-4">
+                <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-primary">Respuestas</h3>
+                {respuestasOrdenadas.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Sin respuestas cargadas.</p>
+                ) : (
+                  <div className="space-y-4">
+                    {respuestasOrdenadas.map((k) => (
+                      <div key={k}>
+                        <p className="text-xs text-muted-foreground">{ETIQUETAS_RESPUESTAS[k] ?? k}</p>
+                        <p className="mt-0.5 whitespace-pre-wrap text-sm">{respuestas[k]}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-xl border border-border bg-background/50 p-4">
+                <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-primary">Seguimiento</h3>
+                <div className="mb-4 flex flex-wrap gap-3">
+                  <select
+                    value={abierto.estado}
+                    onChange={(e) => actualizar(abierto.id, { estado: e.target.value })}
+                    aria-label="Estado"
+                    className={`${selectCls} ${colorEstado(abierto.estado)}`}
+                  >
+                    {ESTADOS.map((e) => (
+                      <option key={e.id} value={e.id}>
+                        {e.label}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={abierto.tier ?? ""}
+                    onChange={(e) => actualizar(abierto.id, { tier: e.target.value || null })}
+                    aria-label="Tier"
+                    className={selectCls}
+                  >
+                    <option value="">Sin tier</option>
+                    {TIERS.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <label htmlFor="academy-notas" className="mb-2 block text-xs text-muted-foreground">
+                  Notas internas (se guardan al salir del campo)
+                </label>
+                <textarea
+                  id="academy-notas"
+                  key={abierto.id}
+                  defaultValue={abierto.notas_internas ?? ""}
+                  onBlur={(e) => {
+                    if (e.target.value !== (abierto.notas_internas ?? "")) {
+                      actualizar(abierto.id, { notas_internas: e.target.value });
+                    }
+                  }}
+                  rows={3}
+                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-primary focus:outline-none"
+                />
+              </div>
+
+              {linkWhatsapp(abierto.whatsapp, abierto.nombre_apellido) && (
+                <a
+                  href={linkWhatsapp(abierto.whatsapp, abierto.nombre_apellido) as string}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-6 py-3 text-sm font-bold uppercase tracking-wider text-white hover:bg-emerald-600"
+                >
+                  <MessageCircle className="h-4 w-4" /> Escribir por WhatsApp
+                </a>
+              )}
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+    </main>
   );
 }
