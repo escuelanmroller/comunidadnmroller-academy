@@ -58,7 +58,7 @@ const Tarjeta = ({ item }: { item: ItemEcosistema }) => {
   );
 };
 
-export default function EcosistemaNM() {
+export default function EcosistemaNM({ excluirIds = [] }: { excluirIds?: string[] }) {
   return (
     <div className="space-y-10">
       {(VIDEOS.length > 0 || NOTAS_TV.length > 0 || WEB_PERSONAL) && (
@@ -112,7 +112,7 @@ export default function EcosistemaNM() {
         <h2 className="mb-1 text-lg font-extrabold sm:text-xl">Todo el ecosistema NM Roller</h2>
         <p className="mb-4 text-sm text-muted-foreground">Mientras te contactamos, conocé todo lo que armamos.</p>
         <div className="grid gap-4 sm:grid-cols-2">
-          {ECOSISTEMA.map((item) => (
+          {ECOSISTEMA.filter((item) => !excluirIds.includes(item.id)).map((item) => (
             <Tarjeta key={item.id} item={item} />
           ))}
         </div>
