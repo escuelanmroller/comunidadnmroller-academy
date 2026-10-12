@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      academy_instructores: {
+        Row: {
+          anos_patinando: string | null
+          como_me_conociste: string | null
+          created_at: string
+          edad: number | null
+          email: string
+          estado: string
+          id: string
+          instagram: string | null
+          nombre_apellido: string
+          notas_internas: string | null
+          pais_ciudad: string | null
+          respuestas: Json
+          tier: string | null
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          anos_patinando?: string | null
+          como_me_conociste?: string | null
+          created_at?: string
+          edad?: number | null
+          email: string
+          estado?: string
+          id?: string
+          instagram?: string | null
+          nombre_apellido: string
+          notas_internas?: string | null
+          pais_ciudad?: string | null
+          respuestas?: Json
+          tier?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          anos_patinando?: string | null
+          como_me_conociste?: string | null
+          created_at?: string
+          edad?: number | null
+          email?: string
+          estado?: string
+          id?: string
+          instagram?: string | null
+          nombre_apellido?: string
+          notas_internas?: string | null
+          pais_ciudad?: string | null
+          respuestas?: Json
+          tier?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
       comprobantes_pago: {
         Row: {
           created_at: string
