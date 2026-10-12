@@ -1,107 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  ETIQUETAS_RESPUESTAS,
-  OPCIONES_CONOCISTE,
-  OPCIONES_COSTO,
-  OPCIONES_PRESUPUESTO,
-  OPCIONES_REINVERTIRIA,
-  OPCIONES_UTILIDAD,
-} from "@/data/academy";
+import { anosDisponibles, armarPasos, PREGUNTAS_DEFAULT, type Paso, type Pregunta } from "@/data/academyPreguntas";
 import logo from "@/assets/Logo-NM-Rollers.png";
 import EcosistemaNM from "@/components/academy/EcosistemaNM";
-
-type Campo = {
-  key: string;
-  label: string;
-  tipo: "text" | "email" | "tel" | "number" | "textarea" | "opciones" | "multi" | "escala";
-  requerido?: boolean;
-  placeholder?: string;
-  opciones?: string[];
-};
-
-type Paso = { titulo: string; bajada?: string; campos: Campo[] };
-
-const L = (k: string) => ETIQUETAS_RESPUESTAS[k];
-
-const PASOS: Paso[] = [
-  {
-    titulo: "Empecemos por vos",
-    bajada: "Con estos datos te vamos a contactar.",
-    campos: [
-      { key: "nombre_apellido", label: "Nombre y apellido", tipo: "text", requerido: true, placeholder: "Ej: Juan Pérez" },
-      { key: "email", label: "Email", tipo: "email", requerido: true, placeholder: "juan@email.com" },
-      { key: "whatsapp", label: "WhatsApp (con código de tu país)", tipo: "tel", requerido: true, placeholder: "+54 9 11 1234 5678" },
-    ],
-  },
-  {
-    titulo: "¿De dónde sos?",
-    campos: [
-      { key: "pais_ciudad", label: "País y ciudad", tipo: "text", requerido: true, placeholder: "Buenos Aires, Argentina" },
-      { key: "edad", label: "Edad", tipo: "number", requerido: true, placeholder: "30" },
-      { key: "instagram", label: "Instagram (opcional)", tipo: "text", placeholder: "@usuario" },
-    ],
-  },
-  {
-    titulo: "Tu camino en el patín",
-    campos: [
-      { key: "anos_patinando", label: "¿Hace cuánto tiempo patinás?", tipo: "text", placeholder: "Ej: 5 años" },
-      { key: "costo_aprender", label: L("costo_aprender"), tipo: "opciones", opciones: OPCIONES_COSTO },
-      { key: "como_me_conociste", label: "¿Cómo me conociste? (podés marcar más de una)", tipo: "multi", opciones: OPCIONES_CONOCISTE },
-    ],
-  },
-  {
-    titulo: "Tu nivel",
-    campos: [
-      { key: "nivel", label: L("nivel"), tipo: "textarea", requerido: true, placeholder: "Ej: intermedio, me interesa freestyle y slalom" },
-      { key: "experiencia", label: L("experiencia"), tipo: "textarea" },
-      { key: "frecuencia_practica", label: L("frecuencia_practica"), tipo: "text", placeholder: "Ej: 3 veces por semana" },
-    ],
-  },
-  {
-    titulo: "Tu motivación",
-    campos: [
-      { key: "motivacion", label: L("motivacion"), tipo: "textarea", requerido: true },
-      { key: "otros_objetivos", label: L("otros_objetivos"), tipo: "textarea" },
-      { key: "frase_identidad", label: L("frase_identidad"), tipo: "text" },
-    ],
-  },
-  {
-    titulo: "Cómo enseñarías",
-    bajada: "Contanos cómo actuarías en una clase real.",
-    campos: [
-      { key: "alumno_miedo", label: L("alumno_miedo"), tipo: "textarea" },
-      { key: "ritmos_aprendizaje", label: L("ritmos_aprendizaje"), tipo: "textarea" },
-      { key: "caida_alumno", label: L("caida_alumno"), tipo: "textarea" },
-    ],
-  },
-  {
-    titulo: "Tu compromiso",
-    campos: [
-      { key: "manejo_frustracion", label: L("manejo_frustracion"), tipo: "textarea" },
-      { key: "tiempo_tecnicas", label: L("tiempo_tecnicas"), tipo: "textarea" },
-      { key: "mantenerse_informado", label: L("mantenerse_informado"), tipo: "textarea" },
-    ],
-  },
-  {
-    titulo: "Tu futuro como instructor",
-    campos: [
-      { key: "importancia_equipo", label: L("importancia_equipo"), tipo: "textarea" },
-      { key: "invertir_futuro", label: L("invertir_futuro"), tipo: "textarea" },
-      { key: "mensaje_yo_18", label: L("mensaje_yo_18"), tipo: "text" },
-    ],
-  },
-  {
-    titulo: "Tu inversión",
-    campos: [
-      { key: "presupuesto", label: L("presupuesto"), tipo: "opciones", requerido: true, opciones: OPCIONES_PRESUPUESTO },
-      { key: "reinvertiria", label: L("reinvertiria"), tipo: "opciones", opciones: OPCIONES_REINVERTIRIA },
-      { key: "utilidad_encuesta", label: L("utilidad_encuesta"), tipo: "escala", opciones: OPCIONES_UTILIDAD },
-    ],
-  },
-];
 
 const COLUMNAS = ["nombre_apellido", "email", "whatsapp", "pais_ciudad", "edad", "instagram", "anos_patinando", "como_me_conociste"];
 
@@ -110,6 +13,8 @@ const inputCls =
 
 export default function AcademyInscribirse() {
   const navigate = useNavigate();
+  const [pasos, setPasos] = useState<Paso[]>(() => armarPasos(PREGUNTAS_DEFAULT));
+  const [cargando, setCargando] = useState(true);
   const [paso, setPaso] = useState(0);
   const [datos, setDatos] = useState<Record<string, string>>({});
   const [errores, setErrores] = useState<Record<string, string>>({});
@@ -117,8 +22,27 @@ export default function AcademyInscribirse() {
   const [errorEnvio, setErrorEnvio] = useState("");
   const [enviado, setEnviado] = useState(false);
 
-  const actual = PASOS[paso];
-  const esUltimo = paso === PASOS.length - 1;
+  useEffect(() => {
+    let cancelado = false;
+    supabase
+      .from("academy_preguntas")
+      .select("*")
+      .eq("activa", true)
+      .then(({ data, error }) => {
+        if (cancelado) return;
+        // Si la base no responde, se usa el formulario de origen para no perder inscripciones.
+        if (!error && data && data.length > 0) {
+          setPasos(armarPasos(data.map((d) => ({ ...d, tipo: d.tipo as Pregunta["tipo"], opciones: (d.opciones ?? []) as string[] }))));
+        }
+        setCargando(false);
+      });
+    return () => {
+      cancelado = true;
+    };
+  }, []);
+
+  const actual = pasos[Math.min(paso, pasos.length - 1)];
+  const esUltimo = paso >= pasos.length - 1;
 
   const set = (key: string, valor: string) => {
     setDatos((d) => ({ ...d, [key]: valor }));
@@ -158,13 +82,13 @@ export default function AcademyInscribirse() {
     if (datos.instagram?.trim()) respuestas.instagram = datos.instagram.trim();
 
     const { error } = await supabase.from("academy_instructores").insert({
-      nombre_apellido: datos.nombre_apellido.trim(),
-      email: datos.email.trim(),
+      nombre_apellido: (datos.nombre_apellido ?? "").trim(),
+      email: (datos.email ?? "").trim(),
       instagram: datos.instagram?.trim() || null,
-      pais_ciudad: datos.pais_ciudad.trim(),
+      pais_ciudad: datos.pais_ciudad?.trim() || null,
       anos_patinando: datos.anos_patinando?.trim() || null,
       edad: Number(datos.edad) || null,
-      whatsapp: datos.whatsapp.trim(),
+      whatsapp: datos.whatsapp?.trim() || null,
       como_me_conociste: datos.como_me_conociste || null,
       respuestas,
       estado: "nuevo",
@@ -199,6 +123,14 @@ export default function AcademyInscribirse() {
       activa ? "border-emerald-500 bg-emerald-500/10 text-emerald-300" : "border-border bg-background hover:border-border/80"
     }`;
 
+  if (cargando) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background text-foreground">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </main>
+    );
+  }
+
   if (enviado) {
     return (
       <main className="min-h-screen bg-background px-4 py-8 text-foreground">
@@ -229,7 +161,7 @@ export default function AcademyInscribirse() {
         <img src={logo} alt="NM Roller" className="mx-auto mb-3 h-16 w-16 rounded-full object-contain" />
         <h1 className="text-center text-xl font-extrabold sm:text-2xl">Inscribite en NM Academy</h1>
         <p className="mb-5 mt-1 text-center text-sm text-muted-foreground">
-          Paso {paso + 1} de {PASOS.length}
+          Paso {paso + 1} de {pasos.length}
         </p>
 
         <div className="mb-6 flex items-center gap-3">
@@ -243,11 +175,11 @@ export default function AcademyInscribirse() {
           <div
             role="progressbar"
             aria-valuemin={1}
-            aria-valuemax={PASOS.length}
+            aria-valuemax={pasos.length}
             aria-valuenow={paso + 1}
             className="flex flex-1 gap-1"
           >
-            {PASOS.map((p, i) => (
+            {pasos.map((p, i) => (
               <span key={p.titulo} className={`h-1 flex-1 rounded-full ${i <= paso ? "bg-primary" : "bg-border"}`} />
             ))}
           </div>
@@ -295,6 +227,17 @@ export default function AcademyInscribirse() {
                     placeholder={c.placeholder}
                     className={inputCls}
                   />
+                )}
+
+                {c.tipo === "anio" && (
+                  <select id={id} value={valor} onChange={(e) => set(c.key, e.target.value)} className={inputCls}>
+                    <option value="">Elegí un año</option>
+                    {anosDisponibles().map((a) => (
+                      <option key={a} value={a}>
+                        {a}
+                      </option>
+                    ))}
+                  </select>
                 )}
 
                 {c.tipo === "opciones" && (
