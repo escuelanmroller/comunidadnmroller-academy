@@ -3,7 +3,6 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Index from "./pages/Index.tsx";
 import NewsletterDesdeCero from "./pages/NewsletterDesdeCero.tsx";
 import RegistroConfirmadoNewsletter from "./pages/RegistroConfirmadoNewsletter.tsx";
 import PagoConfirmado from "./pages/PagoConfirmado.tsx";
@@ -42,7 +41,7 @@ const App = () => (
       <BrowserRouter>
         <ScrollToTop />
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<Academy />} />
           <Route path="/newsletter-desde-cero" element={<NewsletterDesdeCero />} />
           <Route path="/registro-confirmado-newsletter" element={<RegistroConfirmadoNewsletter />} />
           <Route path="/pago-confirmado" element={<PagoConfirmado />} />
@@ -63,7 +62,14 @@ const App = () => (
           <Route path="/renovar-alquiler" element={<RenovarAlquiler />} />
           <Route path="/academy" element={<Academy />} />
           <Route path="/academy/inscribirse" element={<AcademyInscribirse />} />
-          <Route path="/admin/academy" element={<AdminAcademy />} />
+          <Route
+            path="/admin/academy"
+            element={
+              <RequireAuth>
+                <AdminAcademy />
+              </RequireAuth>
+            }
+          />
           <Route path="/panel-ventas/login" element={<PanelVentasLogin />} />
           <Route
             path="/panel-ventas"

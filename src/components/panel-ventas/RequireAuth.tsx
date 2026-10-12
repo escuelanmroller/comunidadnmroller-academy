@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 
 const RequireAuth = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
   const [session, setSession] = useState<Session | null | undefined>(undefined);
 
   useEffect(() => {
@@ -21,7 +22,7 @@ const RequireAuth = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  if (!session) return <Navigate to="/panel-ventas/login" replace />;
+  if (!session) return <Navigate to="/panel-ventas/login" state={{ from: location.pathname }} replace />;
 
   return <>{children}</>;
 };

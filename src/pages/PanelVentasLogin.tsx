@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { Loader2, Lock } from "lucide-react";
 
 const PanelVentasLogin = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,7 +19,7 @@ const PanelVentasLogin = () => {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      navigate("/panel-ventas", { replace: true });
+      navigate((location.state as { from?: string } | null)?.from ?? "/panel-ventas", { replace: true });
     } catch (err: any) {
       toast.error(err?.message ?? "No pudimos iniciar sesión.");
     } finally {
