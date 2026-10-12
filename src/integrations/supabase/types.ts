@@ -68,6 +68,57 @@ export type Database = {
         }
         Relationships: []
       }
+      academy_preguntas: {
+        Row: {
+          activa: boolean
+          clave: string
+          created_at: string
+          etiqueta: string
+          fija: boolean
+          id: string
+          opciones: Json
+          orden: number
+          paso: number
+          paso_bajada: string | null
+          paso_titulo: string
+          placeholder: string | null
+          requerida: boolean
+          tipo: string
+        }
+        Insert: {
+          activa?: boolean
+          clave: string
+          created_at?: string
+          etiqueta: string
+          fija?: boolean
+          id?: string
+          opciones?: Json
+          orden?: number
+          paso: number
+          paso_bajada?: string | null
+          paso_titulo: string
+          placeholder?: string | null
+          requerida?: boolean
+          tipo: string
+        }
+        Update: {
+          activa?: boolean
+          clave?: string
+          created_at?: string
+          etiqueta?: string
+          fija?: boolean
+          id?: string
+          opciones?: Json
+          orden?: number
+          paso?: number
+          paso_bajada?: string | null
+          paso_titulo?: string
+          placeholder?: string | null
+          requerida?: boolean
+          tipo?: string
+        }
+        Relationships: []
+      }
       comprobantes_pago: {
         Row: {
           created_at: string
