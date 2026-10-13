@@ -119,7 +119,7 @@ export default function AcademyInscribirse() {
   };
 
   const opcionCls = (activa: boolean) =>
-    `w-full rounded-2xl border-2 px-4 py-3 text-left text-sm font-semibold transition-colors ${
+    `w-full rounded-2xl border-2 px-4 py-3 text-left text-base font-semibold transition-colors ${
       activa ? "border-emerald-500 bg-emerald-500/10 text-emerald-300" : "border-border bg-background hover:border-border/80"
     }`;
 
@@ -138,7 +138,7 @@ export default function AcademyInscribirse() {
           <div className="mx-auto w-full max-w-xl rounded-3xl border border-border bg-card p-8 text-center">
             <CheckCircle2 className="mx-auto mb-5 h-14 w-14 text-emerald-400" />
             <h1 className="mb-3 text-xl font-extrabold sm:text-2xl">¡Inscripción enviada!</h1>
-            <p className="mb-6 text-sm text-muted-foreground">
+            <p className="mb-6 text-base leading-relaxed text-neutral-300">
               Gracias por tu interés en NM Academy. Nico se va a poner en contacto con vos por WhatsApp para definir tu
               programa.
             </p>
@@ -160,7 +160,7 @@ export default function AcademyInscribirse() {
       <form onSubmit={siguiente} noValidate className="w-full max-w-xl rounded-3xl border border-border bg-card p-5 sm:p-8">
         <img src={logo} alt="NM Roller" className="mx-auto mb-3 h-16 w-16 rounded-full object-contain" />
         <h1 className="text-center text-xl font-extrabold sm:text-2xl">Inscribite en NM Academy</h1>
-        <p className="mb-5 mt-1 text-center text-sm text-muted-foreground">
+        <p className="mb-5 mt-1 text-center text-base text-neutral-300">
           Paso {paso + 1} de {pasos.length}
         </p>
 
@@ -168,7 +168,7 @@ export default function AcademyInscribirse() {
           <button
             type="button"
             onClick={volver}
-            className="shrink-0 rounded-full border border-border px-4 py-2 text-xs font-bold hover:bg-background"
+            className="shrink-0 rounded-full border border-border px-4 py-2 text-sm font-bold hover:bg-background"
           >
             ← Volver
           </button>
@@ -185,8 +185,8 @@ export default function AcademyInscribirse() {
           </div>
         </div>
 
-        <h2 className="text-lg font-extrabold">{actual.titulo}</h2>
-        {actual.bajada && <p className="mb-1 mt-1 text-sm text-muted-foreground">{actual.bajada}</p>}
+        <h2 className="text-xl font-extrabold">{actual.titulo}</h2>
+        {actual.bajada && <p className="mb-1 mt-1 text-base text-neutral-300">{actual.bajada}</p>}
 
         <div className="mt-5 space-y-5">
           {actual.campos.map((c) => {
@@ -195,12 +195,12 @@ export default function AcademyInscribirse() {
             return (
               <div key={c.key}>
                 {c.tipo === "opciones" || c.tipo === "multi" || c.tipo === "escala" ? (
-                  <p className="mb-2 text-sm font-semibold">
+                  <p className="mb-2 text-base font-semibold">
                     {c.label}
                     {c.requerido && <span className="text-primary"> *</span>}
                   </p>
                 ) : (
-                  <label htmlFor={id} className="mb-2 block text-sm font-semibold">
+                  <label htmlFor={id} className="mb-2 block text-base font-semibold">
                     {c.label}
                     {c.requerido && <span className="text-primary"> *</span>}
                   </label>
