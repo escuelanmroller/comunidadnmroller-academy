@@ -40,9 +40,9 @@ const Tarjeta = ({ item }: { item: ItemEcosistema }) => {
       <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-primary/15 text-primary">
         <Icono className="h-5 w-5" />
       </span>
-      <h3 className="text-base font-extrabold leading-snug">{item.titulo}</h3>
-      <p className="mt-1.5 flex-1 text-sm text-muted-foreground">{item.descripcion}</p>
-      <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-emerald-400 group-hover:underline">
+      <h3 className="text-lg font-extrabold leading-snug">{item.titulo}</h3>
+      <p className="mt-1.5 flex-1 text-base leading-relaxed text-neutral-300">{item.descripcion}</p>
+      <span className="mt-4 inline-flex items-center gap-1 text-sm font-bold uppercase tracking-wider text-emerald-400 group-hover:underline">
         {item.cta} <ArrowUpRight className="h-3.5 w-3.5" />
       </span>
     </>
@@ -63,7 +63,7 @@ export default function EcosistemaNM({ excluirIds = [] }: { excluirIds?: string[
     <div className="space-y-10">
       {(VIDEOS.length > 0 || NOTAS_TV.length > 0 || WEB_PERSONAL) && (
         <section>
-          <h2 className="mb-4 text-lg font-extrabold sm:text-xl">Mirá lo que hacemos</h2>
+          <h2 className="mb-4 text-xl font-extrabold">Mirá lo que hacemos</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             {VIDEOS.map((v) => (
               <div key={v.youtubeId} className="overflow-hidden rounded-2xl border border-border bg-card">
@@ -89,7 +89,7 @@ export default function EcosistemaNM({ excluirIds = [] }: { excluirIds?: string[
                 className={cardCls}
               >
                 <span className="text-xs font-bold uppercase tracking-wider text-primary">{n.medio ?? "Nota"}</span>
-                <h3 className="mt-2 flex-1 text-base font-extrabold leading-snug">{n.titulo}</h3>
+                <h3 className="mt-2 flex-1 text-lg font-extrabold leading-snug">{n.titulo}</h3>
                 <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-emerald-400">
                   Ver nota <ArrowUpRight className="h-3.5 w-3.5" />
                 </span>
@@ -109,8 +109,8 @@ export default function EcosistemaNM({ excluirIds = [] }: { excluirIds?: string[
       )}
 
       <section>
-        <h2 className="mb-1 text-lg font-extrabold sm:text-xl">Todo el ecosistema NM Roller</h2>
-        <p className="mb-4 text-sm text-muted-foreground">Mientras te contactamos, conocé todo lo que armamos.</p>
+        <h2 className="mb-1 text-xl font-extrabold">Todo el ecosistema NM Roller</h2>
+        <p className="mb-4 text-base text-neutral-300">Mientras te contactamos, conocé todo lo que armamos.</p>
         <div className="grid gap-4 sm:grid-cols-2">
           {ECOSISTEMA.filter((item) => !excluirIds.includes(item.id)).map((item) => (
             <Tarjeta key={item.id} item={item} />
@@ -125,7 +125,7 @@ export default function EcosistemaNM({ excluirIds = [] }: { excluirIds?: string[
             href={ig.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-xs font-bold uppercase tracking-wider hover:bg-card"
+            className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-bold uppercase tracking-wider hover:bg-card"
           >
             <Instagram className="h-4 w-4" /> {ig.usuario}
           </a>

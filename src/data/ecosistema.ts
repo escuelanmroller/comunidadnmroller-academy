@@ -117,7 +117,9 @@ export const ECOSISTEMA: ItemEcosistema[] = [
 ];
 
 // Para sumar más contenido a la pantalla final alcanza con agregar elementos acá.
-export const VIDEOS = [{ titulo: "Ruta de Aprendizaje NM Roller", youtubeId: "RZd_UWVEx74" }];
+// Sin videos por ahora: la sección "Mirá lo que hacemos" se oculta sola cuando no hay nada para mostrar.
+// Formato: { titulo: "...", youtubeId: "..." }. (El video "Ruta de Aprendizaje NM Roller" era RZd_UWVEx74.)
+export const VIDEOS: { titulo: string; youtubeId: string }[] = [];
 
 export const NOTAS_TV: { titulo: string; medio?: string; url: string }[] = [];
 
