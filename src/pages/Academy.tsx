@@ -64,13 +64,13 @@ export default function Academy() {
     <main className="min-h-screen bg-background text-foreground">
       <section className="mx-auto max-w-4xl px-4 pb-12 pt-12 text-center sm:pt-16">
         <img src={logo} alt="NM Roller" className="mx-auto mb-5 h-16 w-16 rounded-full object-contain" />
-        <span className="mb-5 inline-block rounded-full border border-primary/40 bg-primary/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-primary">
+        <span className="mb-5 inline-block rounded-full border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-bold uppercase tracking-wider text-primary">
           Formación profesional de instructores
         </span>
         <h1 className="mb-4 text-2xl font-extrabold leading-tight sm:text-3xl md:text-4xl">
           Convertite en <span className="text-primary">Instructor de Patinaje</span>
         </h1>
-        <p className="mx-auto mb-8 max-w-2xl text-sm text-muted-foreground sm:text-base">
+        <p className="mx-auto mb-8 max-w-2xl text-base leading-relaxed text-neutral-200 sm:text-lg">
           Programa completo de formación técnica para enseñar patinaje con metodología NM Roller. Aprendé a patinar,
           enseñá con confianza.
         </p>
@@ -95,7 +95,7 @@ export default function Academy() {
           {STATS.map(([valor, texto]) => (
             <div key={texto} className="rounded-2xl border border-border bg-card p-5 text-center">
               <p className="text-2xl font-extrabold text-primary sm:text-3xl">{valor}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{texto}</p>
+              <p className="mt-1 text-sm text-neutral-300">{texto}</p>
             </div>
           ))}
         </div>
@@ -108,8 +108,8 @@ export default function Academy() {
             <div key={titulo} className="flex gap-3 rounded-2xl border border-border bg-card p-5">
               <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
               <div className="min-w-0">
-                <h3 className="text-sm font-extrabold">{titulo}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{texto}</p>
+                <h3 className="text-base font-extrabold">{titulo}</h3>
+                <p className="mt-1 text-base leading-relaxed text-neutral-300">{texto}</p>
               </div>
             </div>
           ))}
@@ -127,19 +127,19 @@ export default function Academy() {
               }`}
             >
               {p.destacado && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-primary px-4 py-1 text-xs font-extrabold uppercase tracking-wider text-primary-foreground">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-primary px-4 py-1 text-sm font-extrabold uppercase tracking-wider text-primary-foreground">
                   Más popular
                 </span>
               )}
               <h3 className="text-xl font-extrabold tracking-wide">{p.nombre}</h3>
-              <span className="mt-2 self-start rounded-full border border-border px-3 py-1 text-xs font-bold text-muted-foreground">
+              <span className="mt-2 self-start rounded-full border border-border px-3 py-1 text-sm font-bold text-neutral-300">
                 {p.duracion}
               </span>
-              <p className="mt-4 text-sm text-muted-foreground">{p.descripcion}</p>
+              <p className="mt-4 text-base leading-relaxed text-neutral-300">{p.descripcion}</p>
               <ul className="mb-6 mt-5 flex-1 space-y-3">
                 {p.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+                  <li key={f} className="flex items-start gap-2 text-base leading-snug">
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" />
                     {f}
                   </li>
                 ))}
@@ -162,7 +162,7 @@ export default function Academy() {
       <section className="mx-auto max-w-3xl px-4 pb-16 text-center">
         <div className="rounded-3xl border border-border bg-card p-8">
           <h2 className="mb-2 text-xl font-extrabold sm:text-2xl">¿Dudas sobre el programa?</h2>
-          <p className="mb-6 text-sm text-muted-foreground">
+          <p className="mb-6 text-base leading-relaxed text-neutral-300">
             Escribile a Nico por WhatsApp para consultar qué programa se adapta mejor a tu caso.
           </p>
           <a
